@@ -3,8 +3,8 @@ import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { useRef, useLayoutEffect, useEffect, useState } from "react";
 import { useTransform, useScroll, useTime, motion } from "framer-motion";
 import { degreesToRadians, progress, mix } from "popmotion";
-import { Mesh } from 'three';
-import { Box, Button } from "@chakra-ui/react";
+import { Mesh } from "three";
+import { Box, Button, Center, Heading } from "@chakra-ui/react";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 
 const color = "#111111";
@@ -87,29 +87,41 @@ export default function App() {
   };
 
   useEffect(() => {
-    window.addEventListener('scroll', checkScrollBottom);
+    window.addEventListener("scroll", checkScrollBottom);
 
-    return () => window.removeEventListener('scroll', checkScrollBottom);
+    return () => window.removeEventListener("scroll", checkScrollBottom);
   }, []);
 
   return (
-    <Box position='fixed' top='0' bottom='0' right='0' left='0'>
+    <Box position="fixed" top="0" bottom="0" right="0" left="0">
+      <Center>
+        <Heading fontSize={"8xl"} top="-5" position={"fixed"}>
+          Boilerplate.ai
+        </Heading>
+      </Center>
       <Canvas gl={{ antialias: false }}>
         <Scene />
       </Canvas>
-      <MotionButton
-        initial={{ opacity: 0 }}
-        animate={{ opacity: showButton ? 1 : 0 }}
-        transition={{ duration: 0.5 }}
-        position='fixed'
-        bottom='20px'
-        left='50%'
-        transform='translateX(-50%)'
-        variant='unstyled'
-        size='lg'
-      >
-        Click to Proceed <ArrowForwardIcon />
-      </MotionButton>
+      <Center>
+        <MotionButton
+          initial={{ opacity: 0 }}
+          animate={{ opacity: showButton ? 1 : 0 }}
+          transition={{ duration: 0.5 }}
+          position="fixed"
+          fontSize={"3xl"}
+          bottom="20px"
+          left="50%"
+          transform="translateX(-50%)"
+          variant="unstyled"
+          size="lg"
+          _hover={{
+            color: 'gray.600',
+            boxShadow: '3xl',
+          }}
+        >
+          Click to Proceed <ArrowForwardIcon />
+        </MotionButton>
+      </Center>
     </Box>
   );
 }
