@@ -1,11 +1,15 @@
 import "./styles.css";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
-import { useRef, useLayoutEffect } from "react";
-import { useTransform, useScroll, useTime } from "framer-motion";
+import { useRef, useLayoutEffect, useEffect, useState } from "react";
+import { useTransform, useScroll, useTime, motion } from "framer-motion";
 import { degreesToRadians, progress, mix } from "popmotion";
 import { Mesh } from 'three';
+import { Box, Button } from "@chakra-ui/react";
+import { ArrowForwardIcon } from "@chakra-ui/icons";
 
 const color = "#111111";
+
+const MotionButton = motion(Button);
 
 const Icosahedron = () => (
   <mesh rotation-x={0.35}>
@@ -73,11 +77,39 @@ function Scene({ numStars = 100 }) {
 }
 
 export default function App() {
+  const [showButton, setShowButton] = useState(false);
+  const checkScrollBottom = () => {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+      setShowButton(true);
+    } else {
+      setShowButton(false);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('scroll', checkScrollBottom);
+
+    return () => window.removeEventListener('scroll', checkScrollBottom);
+  }, []);
+
   return (
-    <div className="container">
+    <Box position='fixed' top='0' bottom='0' right='0' left='0'>
       <Canvas gl={{ antialias: false }}>
         <Scene />
       </Canvas>
-    </div>
+      <MotionButton
+        initial={{ opacity: 0 }}
+        animate={{ opacity: showButton ? 1 : 0 }}
+        transition={{ duration: 0.5 }}
+        position='fixed'
+        bottom='20px'
+        left='50%'
+        transform='translateX(-50%)'
+        variant='unstyled'
+        size='lg'
+      >
+        Click to Proceed <ArrowForwardIcon />
+      </MotionButton>
+    </Box>
   );
 }
