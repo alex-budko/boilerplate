@@ -3,7 +3,7 @@ import "@fontsource/lato";
 
 const HeadingComponent = () => (
   <Center>
-    <Heading fontFamily="Lato" fontSize={"4xl"} top="-5" position={"fixed"}>
+    <Heading fontFamily="Lato" fontSize={"6xl"} top="0" position={"fixed"}>
       BoilerPlate.ai
     </Heading>
   </Center>

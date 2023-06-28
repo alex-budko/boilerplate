@@ -38,7 +38,7 @@ const HeroPage = () => {
   }, []);
 
   return (
-    <Box position="fixed" top="0" bottom="0" right="0" left="0">
+    <Box position="fixed" bgGradient="linear(to-r, black, gray)" top="0" bottom="0" right="0" left="0">
       <HeadingComponent />
       <Canvas gl={{ antialias: false }}>
         <SceneComponent />
