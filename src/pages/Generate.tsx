@@ -60,13 +60,13 @@ const Generate = () => {
     // navigate('/somewhere');
   };
 
-  const [props, _] = useSpring(
-    () => ({
-      from: { opacity: 0 },
-      to: { opacity: 1 },
-    }),
-    [showResults]
-  );
+  const props = useSpring({
+    from: { opacity: 0, transform: "translate3d(0,-40px,0)" },
+    to: showResults
+      ? { opacity: 1, transform: "translate3d(0,0px,0)" }
+      : { opacity: 0, transform: "translate3d(0,-40px,0)" },
+    config: { mass: 1, tension: 280, friction: 60 },
+  });
 
   return (
     <Box
