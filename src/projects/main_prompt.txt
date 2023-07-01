@@ -1,2 +1,0 @@
-Multiplayer snake in the browser
-Use a python backend with MVC components
