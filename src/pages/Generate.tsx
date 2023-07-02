@@ -48,16 +48,29 @@ const Generate = () => {
     }
   };
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     setShowResults(false);
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+
+    const response = await fetch("http://localhost:5000/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: text,
+        frameworks: selectedFrameworks,
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      setCodeResults(data.codeResults);
       setShowResults(true);
-      setCodeResults(code);
-    }, 4000);
-    // navigate('/somewhere');
+    }
+
+    setLoading(false);
   };
 
   const props = useSpring({
