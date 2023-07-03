@@ -18,6 +18,8 @@
     "@types/react": "^18.2.13",
     "@types/react-dom": "^18.2.6",
     "@types/three": "^0.152.1",
+    "atob": "^2.1.2",
+    "axios": "^1.4.0",
     "firebase": "^9.22.2",
     "framer-motion": "^10.12.17",
     "popmotion": "^11.0.5",

@@ -12,8 +12,11 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { frameworks } from "../data/frameworks";
-import { code } from "../data/code";
 import { animated, useSpring } from "react-spring";
+import { getAuth, GithubAuthProvider, signInWithPopup } from "firebase/auth";
+import axios from 'axios';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 
 interface FileResult {
   filename: string;
@@ -68,6 +71,25 @@ const Generate = () => {
       const data = await response.json();
       setCodeResults(data.codeResults[0].files);
       setShowResults(true);
+
+      const provider = new GithubAuthProvider();
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const credential = GithubAuthProvider.credentialFromResult(result);
+          if (credential) {
+            const token = credential.accessToken;
+            if (token) {
+              createRepoAndUploadFiles(token, data.codeResults[0].files, 'boilerplate-1');
+            } else {
+              console.error('Access token is undefined');
+            }
+          } else {
+            console.error('Credential is null');
+          }
+        })
+        .catch((error : any) => {
+          console.error('Failed to sign in with Github:', error);
+        });
     }
 
     setLoading(false);
@@ -80,6 +102,65 @@ const Generate = () => {
       : { opacity: 0, transform: "translate3d(0,-40px,0)" },
     config: { mass: 1, tension: 280, friction: 60 },
   });
+
+  const auth = getAuth();
+
+  const uploadFilesToRepo = async (token: string, files: FileResult[], repoName: string) => {
+    for (const file of files) {
+      try {
+        const content = btoa(file.content);
+        const user = auth.currentUser;
+
+        if (!user) {
+          console.error('No authenticated user');
+          return;
+        }
+
+        await axios.put(`https://api.github.com/repos/${user.displayName}/${repoName}/contents/${file.filename}`, {
+          message: `commit from firebase app`, 
+          content: content,
+          committer: {
+            name: user.displayName,
+            email: user.email
+          }
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28'
+          }
+        });
+
+        console.log(`Uploaded ${file.filename}`);
+      } catch (error) {
+        console.error(`Error uploading ${file.filename}`, error);
+      }
+    }
+  };
+
+  const createRepoAndUploadFiles = async (token: string, files: FileResult[], repoName: string) => {
+    try {
+      const repo = await axios.post(`https://api.github.com/user/repos`, {
+        name: repoName, 
+        description: 'Testing Boierplate repo',
+        homepage: 'https://github.com',
+        private: false,
+        is_template: true
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+        }
+      });
+
+      uploadFilesToRepo(token, files, repoName);
+    } catch (error) {
+      console.error('Error creating new repository', error);
+    }
+  };
 
   return (
     <Box
@@ -168,8 +249,8 @@ const Generate = () => {
               rounded="md"
               shadow="md"
               key={result.filename}
-              w="100%" /* Set maximum width of the box */
-              overflowX="auto" /* Enable horizontal scroll if the content overflows */
+              w="100%" 
+              overflowX="auto"
             >
               <Text fontSize="lg" mb="2">
                 {result.filename}:
@@ -183,7 +264,6 @@ const Generate = () => {
                 boxShadow={"2xl"}
               >
                 <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
-                  {/* Enable word wrapping and break words to prevent overflow */}
                   {result.content
                     .replace(/(?<!&)lt;/g, "&lt;")
                     .replace(/(?<!&)gt;/g, "&gt;")}
