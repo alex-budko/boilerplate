@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
+import glob
 
 app = Flask(__name__)
 CORS(app)
@@ -28,22 +29,30 @@ def generate_code():
     if not frameworks:
         frameworks = []
     
-    try:
-        with open('projects/boilerplate/prompt', 'w') as f:
-            f.write(f"We need to make a program that is {text} and uses these frameworks: {', '.join(frameworks)}")
-    except FileNotFoundError:
-        return jsonify({"error": "File not found"}), 500
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    # try:
+    #     with open('projects/boilerplate/prompt', 'w') as f:
+    #         f.write(f"We need to make a program that is {text} and uses these frameworks: {', '.join(frameworks)}")
+    # except FileNotFoundError:
+    #     return jsonify({"error": "File not found"}), 500
+    # except Exception as e:
+    #     return jsonify({"error": str(e)}), 500
     
-    os.system('gpt-engineer projects/boilerplate')
+    # os.system('gpt-engineer projects/boilerplate')
     # os.system('Keep it as simple as possible')
+
+    file_data = []
+    for file in glob.glob('projects/boilerplate/workspace/*'):
+        with open(file, 'r') as f:
+            file_data.append({
+                'filename': os.path.basename(file),
+                'content': f.read(),
+            })
 
     return jsonify({
         'codeResults': [
             {
                 'title': 'Completed Successfully',
-                'code': f"We need to make a program that is {text} and uses these frameworks: {', '.join(frameworks)}"
+                'files': file_data
             }
         ]
     })

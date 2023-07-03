@@ -15,9 +15,9 @@ import { frameworks } from "../data/frameworks";
 import { code } from "../data/code";
 import { animated, useSpring } from "react-spring";
 
-interface CodeResult {
-  title: string;
-  code: string;
+interface FileResult {
+  filename: string;
+  content: string;
 }
 
 const Generate = () => {
@@ -27,7 +27,7 @@ const Generate = () => {
     "Any",
   ]);
   const [showResults, setShowResults] = useState<boolean>(false);
-  const [codeResults, setCodeResults] = useState<CodeResult[]>([]);
+  const [codeResults, setCodeResults] = useState<FileResult[]>([]);
 
   const navigate = useNavigate();
 
@@ -66,7 +66,7 @@ const Generate = () => {
 
     if (response.ok) {
       const data = await response.json();
-      setCodeResults(data.codeResults);
+      setCodeResults(data.codeResults[0].files);
       setShowResults(true);
     }
 
@@ -167,10 +167,12 @@ const Generate = () => {
               bg="gray.800"
               rounded="md"
               shadow="md"
-              key={result.title}
+              key={result.filename}
+              w="100%" /* Set maximum width of the box */
+              overflowX="auto" /* Enable horizontal scroll if the content overflows */
             >
               <Text fontSize="lg" mb="2">
-                {result.title}:
+                {result.filename}:
               </Text>
               <Code
                 fontSize="md"
@@ -180,8 +182,9 @@ const Generate = () => {
                 rounded={"3xl"}
                 boxShadow={"2xl"}
               >
-                <pre>
-                  {result.code
+                <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
+                  {/* Enable word wrapping and break words to prevent overflow */}
+                  {result.content
                     .replace(/(?<!&)lt;/g, "&lt;")
                     .replace(/(?<!&)gt;/g, "&gt;")}
                 </pre>
