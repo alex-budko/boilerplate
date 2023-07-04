@@ -15,7 +15,6 @@ import { frameworks } from "../data/frameworks";
 import { animated, useSpring } from "react-spring";
 import { getAuth, GithubAuthProvider, signInWithPopup } from "firebase/auth";
 import axios from 'axios';
-import firebase from 'firebase/app';
 import 'firebase/auth';
 
 interface FileResult {
@@ -143,7 +142,7 @@ const Generate = () => {
     try {
       const repo = await axios.post(`https://api.github.com/user/repos`, {
         name: repoName, 
-        description: 'Testing Boierplate repo',
+        description: 'Testing Boilerplate repo',
         homepage: 'https://github.com',
         private: false,
         is_template: true
