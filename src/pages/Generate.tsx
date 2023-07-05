@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Text,
@@ -14,8 +14,8 @@ import { useNavigate } from "react-router-dom";
 import { frameworks } from "../data/frameworks";
 import { animated, useSpring } from "react-spring";
 import { getAuth, GithubAuthProvider, signInWithPopup } from "firebase/auth";
-import axios from 'axios';
-import 'firebase/auth';
+import axios from "axios";
+import "firebase/auth";
 
 interface FileResult {
   filename: string;
@@ -72,22 +72,29 @@ const Generate = () => {
       setShowResults(true);
 
       const provider = new GithubAuthProvider();
+      provider.addScope("repo");
+      provider.addScope("read:user");
+
       signInWithPopup(auth, provider)
         .then((result) => {
           const credential = GithubAuthProvider.credentialFromResult(result);
           if (credential) {
             const token = credential.accessToken;
             if (token) {
-              createRepoAndUploadFiles(token, data.codeResults[0].files, 'boilerplate-1');
+              createRepoAndUploadFiles(
+                token,
+                data.codeResults[0].files,
+                "boilerplate-1"
+              );
             } else {
-              console.error('Access token is undefined');
+              console.error("Access token is undefined");
             }
           } else {
-            console.error('Credential is null');
+            console.error("Credential is null");
           }
         })
-        .catch((error : any) => {
-          console.error('Failed to sign in with Github:', error);
+        .catch((error: any) => {
+          console.error("Failed to sign in with Github:", error);
         });
     }
 
@@ -104,44 +111,70 @@ const Generate = () => {
 
   const auth = getAuth();
 
-  const uploadFilesToRepo = async (token: string, files: FileResult[], repoName: string) => {
+  const uploadFilesToRepo = async (
+    token: string,
+    files: FileResult[],
+    repoName: string
+  ) => {
     for (const file of files) {
       try {
         const content = btoa(file.content);
         const user = auth.currentUser;
 
         if (!user) {
-          console.error('No authenticated user');
+          console.error("No authenticated user");
           return;
         }
 
-        await axios.put(`https://api.github.com/repos/${user.displayName}/${repoName}/contents/${file.filename}`, {
-          message: `commit from firebase app`, 
-          content: content,
-          committer: {
-            name: user.displayName,
-            email: user.email
-          }
-        }, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/vnd.github+json',
-            'X-GitHub-Api-Version': '2022-11-28'
-          }
-        });
+        if (token) {
+          try {
+            const response = await axios.get("https://api.github.com/user", {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
 
-        console.log(`Uploaded ${file.filename}`);
+            const username = response.data.login;
+            
+            await axios.put(
+              `https://api.github.com/repos/${username}/${repoName}/contents/${file.filename}`,
+              {
+                message: `commit from firebase app`,
+                content: content,
+                committer: {
+                  name: user.displayName,
+                  email: user.email,
+                },
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                  Accept: "application/vnd.github+json",
+                  "X-GitHub-Api-Version": "2022-11-28",
+                },
+              }
+            );
+
+            console.log(`Uploaded ${file.filename}`);
+          } catch (error) {
+            console.error(error);
+          }
+        }
       } catch (error) {
         console.error(`Error uploading ${file.filename}`, error);
       }
     }
   };
 
-  const createRepoAndUploadFiles = async (token: string, files: FileResult[], repoName: string) => {
+  const createRepoAndUploadFiles = async (
+    token: string,
+    files: FileResult[],
+    repoName: string
+  ) => {
     try {
       const repo = await axios.post(`https://api.github.com/user/repos`, {
-        name: repoName, 
+        name: repoName,
         description: 'Testing Boilerplate repo',
         homepage: 'https://github.com',
         private: false,
@@ -157,7 +190,7 @@ const Generate = () => {
 
       uploadFilesToRepo(token, files, repoName);
     } catch (error) {
-      console.error('Error creating new repository', error);
+      console.error("Error creating new repository", error);
     }
   };
 
@@ -248,7 +281,7 @@ const Generate = () => {
               rounded="md"
               shadow="md"
               key={result.filename}
-              w="100%" 
+              w="100%"
               overflowX="auto"
             >
               <Text fontSize="lg" mb="2">
