@@ -56,6 +56,14 @@ const NavigationBar = () => {
         <Spacer />
 
         <Flex alignItems="center">
+        <ChakraLink
+            as={Link}
+            to="/about"
+            px={4}
+            _hover={{ textDecoration: "none" }}
+          >
+            About
+          </ChakraLink>
           <ChakraLink
             as={Link}
             to="/help"

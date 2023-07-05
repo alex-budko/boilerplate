@@ -6,6 +6,7 @@ import Generate from "./pages/Generate";
 import NavigationBar from "./layout/NavigationBar";
 import Help from "./pages/Help";
 import Pricing from "./pages/Pricing";
+import About from "./pages/About";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="generate" element={<Generate />} />
         <Route path="pricing" element={<Pricing />} />
         <Route path="help" element={<Help />} />
+        <Route path="about" element={<About />} />
       </Routes>
     </BrowserRouter>
   );
