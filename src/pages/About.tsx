@@ -1,32 +1,67 @@
-import { Box, Text, Heading, Divider, Link } from "@chakra-ui/react";
-import React from 'react';
+import React from "react";
+import {
+  Box,
+  Text,
+  Heading,
+  Divider,
+  Link,
+  Tooltip,
+  VStack,
+} from "@chakra-ui/react";
+import { InfoOutlineIcon } from "@chakra-ui/icons";
 
 function About() {
   return (
-    <Box maxW="1200px" mx="auto" p={8}>
-      <Heading mb={6}>About Boilerplate.AI</Heading>
-      <Text fontSize="xl" mb={4}>
-        This website was created by Alex Budko, an undergraduate student at the University of Pennsylvania.
+    <VStack
+      minW="94vw"
+      minH="94vh"
+      bgGradient="linear(to-r, black, gray)"
+      p={8}
+      spacing={6}
+      align="center"
+    >
+      <Heading as="h1" fontSize="4xl" color="white">
+        About Boilerplate.AI
+      </Heading>
+      <Text fontSize="1xl" color="white" textAlign="center">
+        Boilerplate.AI is the brainchild of Alex Budko, an innovative
+        undergraduate at the University of Pennsylvania.
       </Text>
 
-      <Divider my={6} />
+      <Divider my={6} color="white" />
 
-      <Text fontSize="xl" mb={4}>
-        Boilerplate.AI is designed to simplify the process of setting up a new coding project. Here is how it works:
-      </Text>
-      <Text fontSize="xl" mb={4}>
-        1. As a user, you enter a project prompt.
-      </Text>
-      <Text fontSize="xl" mb={4}>
-        2. The website generates a GitHub repository with all the necessary files for your new project.
+      <Text fontSize="1xl" color="white" textAlign="center">
+        This application is designed to streamline your coding workflow by
+        generating project boilerplate code. The magic lies in its AI engine
+        that leverages a language model trained on extensive data sets to
+        generate reliable code. This means your project setup becomes as easy as
+        entering a prompt!
       </Text>
 
-      <Divider my={6} />
-
-      <Text fontSize="xl" mb={4}>
-        Want to contribute or have any questions? Please feel free to reach out or contribute on <Link href="https://github.com/AlexBudko/Boilerplate.AI" color="teal.500" isExternal>GitHub</Link>.
+      <Text fontSize="1xl" color="white" textAlign="center">
+        Boilerplate.AI generates a GitHub repository containing all the
+        necessary files tailored to your new project's needs. No more fretting
+        about the correct file structure or basic setup – we've got you covered.
       </Text>
-    </Box>
+
+      <Divider my={6} color="white" />
+
+      <Tooltip rounded='2xl' boxShadow='dark-lg' label="This is the best way to reach out for any queries or contributions!">
+        <Text fontSize="1xl" color="white" textAlign="center">
+          Interested in contributing or have any questions? Please feel free to
+          reach out or contribute on our
+          <Link
+            href="https://github.com/AlexBudko/Boilerplate.AI"
+            color="teal.500"
+            isExternal
+          >
+            {" "}
+            GitHub
+          </Link>{" "}
+          <InfoOutlineIcon w={3} h={3} color="teal.500" />.
+        </Text>
+      </Tooltip>
+    </VStack>
   );
 }
 
