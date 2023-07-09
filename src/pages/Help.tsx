@@ -1,5 +1,5 @@
 import {
-  Box, Heading, Container, Text, Button, Stack, createIcon,
+  Box, Heading, Container, Text, Button, Stack, Link
 } from '@chakra-ui/react';
 
 export default function Help() {
@@ -16,9 +16,11 @@ export default function Help() {
             Our dedicated support team is always ready to help you out. Feel free to reach out to us if you have any queries or issues.
           </Text>
           <Stack direction={'column'} spacing={3} align={'center'} alignSelf={'center'} position={'relative'}>
-            <Button colorScheme={'green'} bg={'green.400'} rounded={'full'} px={6} _hover={{ bg: 'green.500', }}>
-              Contact Sasha
-            </Button>
+            <Link href="mailto:xalex.budko@gmail.com" isExternal>
+              <Button colorScheme={'green'} bg={'green.400'} rounded={'full'} px={6} _hover={{ bg: 'green.500', }}>
+                Contact
+              </Button>
+            </Link>
           </Stack>
         </Stack>
       </Container>

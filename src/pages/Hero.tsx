@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Box, Center } from "@chakra-ui/react";
+import { Box, Center, VStack } from "@chakra-ui/react";
 import { Canvas } from "@react-three/fiber";
 import SceneComponent from "../components/SceneComponent";
 import MotionButtonComponent from "../components/MotionButtonComponent";
 import HeadingComponent from "../components/HeadingComponent";
+import AnimatedStepsComponent from "../components/AnimatedStepsComponent";
 import { useNavigate } from "react-router-dom";
 
 const HeroPage = () => {
@@ -50,8 +51,8 @@ const HeroPage = () => {
       <Canvas gl={{ antialias: false }}>
         <SceneComponent />
       </Canvas>
-
       <Center>
+        <AnimatedStepsComponent />
         <MotionButtonComponent onClick={onClick} showButton={showButton} />
       </Center>
     </Box>

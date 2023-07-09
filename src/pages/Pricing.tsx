@@ -38,7 +38,7 @@ export default function Pricing() {
     <Box bgGradient="linear(to-r, black, gray)" minH='94vh' py={12}>
       <VStack spacing={2} textAlign="center">
         <Heading as="h1" fontSize="4xl"> Plans that fit your need </Heading>
-        <Text fontSize="lg" color={'gray.500'}> Start with 14-day free trial. No credit card needed. Cancel at anytime. </Text>
+        <Text fontSize="lg" color={'gray.500'}> Read Purchasing Policy </Text>
       </VStack>
       <Stack direction={{ base: 'column', md: 'row' }} textAlign="center" justify="center" spacing={{ base: 4, lg: 10 }} py={10}>
         <PriceWrapper bgGradient="linear(to-r, red.500, orange.500)">
@@ -48,7 +48,7 @@ export default function Pricing() {
               <Text fontSize="3xl" fontWeight="600">$</Text>
               <Text fontSize="5xl" fontWeight="900"> 4.99 </Text>
             </HStack>
-            <Button mt={4} onClick={() => handleCheckout('prod_ODmh4Bu4QgPNTT')}>Subscribe</Button>
+            <Button mt={4} onClick={() => handleCheckout('price_1NRL83JYg5O3ufDJE9wJr9iq')}>Subscribe</Button>
           </Box>
         </PriceWrapper>
         <PriceWrapper bgGradient="linear(to-r, blue.500, teal.500)">
@@ -58,7 +58,7 @@ export default function Pricing() {
               <Text fontSize="3xl" fontWeight="600">$</Text>
               <Text fontSize="5xl" fontWeight="900"> 8.99 </Text>
             </HStack>
-            <Button mt={4} onClick={() => handleCheckout('prod_ODmh4Bu4QgPNTT')}>Subscribe</Button>
+            <Button mt={4} onClick={() => handleCheckout('price_1NRL83JYg5O3ufDJE9wJr9iq')}>Subscribe</Button>
           </Box>
         </PriceWrapper>
         <PriceWrapper bgGradient="linear(to-r, green.500, yellow.500)">
@@ -68,7 +68,7 @@ export default function Pricing() {
               <Text fontSize="3xl" fontWeight="600">$</Text>
               <Text fontSize="5xl" fontWeight="900"> 12.99 </Text>
             </HStack>
-            <Button mt={4} onClick={() => handleCheckout('prod_ODmh4Bu4QgPNTT')}>Subscribe</Button>
+            <Button mt={4} onClick={() => handleCheckout('price_1NRL83JYg5O3ufDJE9wJr9iq')}>Subscribe</Button>
           </Box>
         </PriceWrapper>
       </Stack>

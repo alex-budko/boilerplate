@@ -31,8 +31,6 @@ const Generate = () => {
   const [showResults, setShowResults] = useState<boolean>(false);
   const [codeResults, setCodeResults] = useState<FileResult[]>([]);
 
-  const navigate = useNavigate();
-
   const handleTextChange = (e: any) => {
     setText(e.target.value);
   };
