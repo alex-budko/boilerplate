@@ -1,8 +1,8 @@
 import { ReactNode } from 'react';
-import {
-  Box, Stack, HStack, Heading, Text, VStack,
-  useColorModeValue,
-} from '@chakra-ui/react';
+import { Box, Stack, HStack, Heading, Text, VStack, Button, useColorModeValue } from '@chakra-ui/react';
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe('pk_live_51NPtpiJYg5O3ufDJs8bcAM7DqQpIDwgDxRwV2It0Am37MgS3o0y4syEsOsDE0p2ItIu4yEECOjiwaMhGrvyWjyNO00J3G5MYs1');
 
 function PriceWrapper({ children, bgGradient }: { children: ReactNode, bgGradient: string }) {
   return (
@@ -12,6 +12,26 @@ function PriceWrapper({ children, bgGradient }: { children: ReactNode, bgGradien
     </Box>
   );
 }
+
+const handleCheckout = async (priceId: string) => {
+  const stripe = await stripePromise;
+
+  if (!stripe) {
+    console.error('Failed to initialize Stripe');
+    return;
+  }
+
+  const {error} = await stripe.redirectToCheckout({
+    lineItems: [{price: priceId, quantity: 1}],
+    mode: 'subscription',
+    successUrl: 'https://your-website.com/success',
+    cancelUrl: 'https://your-website.com/cancel',
+  });
+
+  if (error) {
+    console.warn('Error:', error);
+  }
+};
 
 export default function Pricing() {
   return (
@@ -23,32 +43,32 @@ export default function Pricing() {
       <Stack direction={{ base: 'column', md: 'row' }} textAlign="center" justify="center" spacing={{ base: 4, lg: 10 }} py={10}>
         <PriceWrapper bgGradient="linear(to-r, red.500, orange.500)">
           <Box py={4} px={12}>
-            <Text fontWeight="500" fontSize="2xl"> Hobby </Text>
+            <Text fontWeight="500" fontSize="2xl"> 5 BAI Tokens </Text>
             <HStack justifyContent="center">
               <Text fontSize="3xl" fontWeight="600">$</Text>
-              <Text fontSize="5xl" fontWeight="900"> 17 </Text>
-              <Text fontSize="3xl" color="black.500"> /month </Text>
+              <Text fontSize="5xl" fontWeight="900"> 4.99 </Text>
             </HStack>
+            <Button mt={4} onClick={() => handleCheckout('prod_ODmh4Bu4QgPNTT')}>Subscribe</Button>
           </Box>
         </PriceWrapper>
         <PriceWrapper bgGradient="linear(to-r, blue.500, teal.500)">
           <Box py={4} px={12}>
-            <Text fontWeight="500" fontSize="2xl"> Pro </Text>
+            <Text fontWeight="500" fontSize="2xl"> 10 BAI Tokens </Text>
             <HStack justifyContent="center">
               <Text fontSize="3xl" fontWeight="600">$</Text>
-              <Text fontSize="5xl" fontWeight="900"> 39 </Text>
-              <Text fontSize="3xl" color="black.500"> /month </Text>
+              <Text fontSize="5xl" fontWeight="900"> 8.99 </Text>
             </HStack>
+            <Button mt={4} onClick={() => handleCheckout('prod_ODmh4Bu4QgPNTT')}>Subscribe</Button>
           </Box>
         </PriceWrapper>
         <PriceWrapper bgGradient="linear(to-r, green.500, yellow.500)">
           <Box py={4} px={12}>
-            <Text fontWeight="500" fontSize="2xl"> Business </Text>
+            <Text fontWeight="500" fontSize="2xl"> 15 BAI Tokens </Text>
             <HStack justifyContent="center">
               <Text fontSize="3xl" fontWeight="600">$</Text>
-              <Text fontSize="5xl" fontWeight="900"> 99 </Text>
-              <Text fontSize="3xl" color="black.500"> /month </Text>
+              <Text fontSize="5xl" fontWeight="900"> 12.99 </Text>
             </HStack>
+            <Button mt={4} onClick={() => handleCheckout('prod_ODmh4Bu4QgPNTT')}>Subscribe</Button>
           </Box>
         </PriceWrapper>
       </Stack>

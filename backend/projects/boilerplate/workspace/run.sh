@@ -1,8 +1,7 @@
-sudo apt-get update
-sudo apt-get install python3
+cd /path/to/codebase
 
-pip install dataclasses
+npm install
 
-npm install -g http-server
+npm run build
 
-http-server
+npm start
