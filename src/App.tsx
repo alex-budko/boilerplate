@@ -7,6 +7,7 @@ import NavigationBar from "./layout/NavigationBar";
 import Help from "./pages/Help";
 import Pricing from "./pages/Pricing";
 import About from "./pages/About";
+import Success from "./pages/Success";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="pricing" element={<Pricing />} />
         <Route path="help" element={<Help />} />
         <Route path="about" element={<About />} />
+        <Route path="success" element={<Success />} />
       </Routes>
     </BrowserRouter>
   );

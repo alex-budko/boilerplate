@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import JSZip from "jszip";
 import {
   Box,
   Text,
@@ -9,6 +10,9 @@ import {
   Wrap,
   Center,
   Code,
+  Alert,
+  AlertIcon,
+  useToast,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { frameworks } from "../data/frameworks";
@@ -16,6 +20,7 @@ import { animated, useSpring } from "react-spring";
 import { getAuth, GithubAuthProvider, signInWithPopup } from "firebase/auth";
 import axios from "axios";
 import "firebase/auth";
+import { saveAs } from "file-saver";
 
 interface FileResult {
   filename: string;
@@ -30,6 +35,8 @@ const Generate = () => {
   ]);
   const [showResults, setShowResults] = useState<boolean>(false);
   const [codeResults, setCodeResults] = useState<FileResult[]>([]);
+  const [showUploadButton, setShowUploadButton] = useState<boolean>(false);
+  const toast = useToast();
 
   const handleTextChange = (e: any) => {
     setText(e.target.value);
@@ -68,32 +75,13 @@ const Generate = () => {
       const data = await response.json();
       setCodeResults(data.codeResults[0].files);
       setShowResults(true);
-
-      const provider = new GithubAuthProvider();
-      provider.addScope("repo");
-      provider.addScope("read:user");
-
-      signInWithPopup(auth, provider)
-        .then((result) => {
-          const credential = GithubAuthProvider.credentialFromResult(result);
-          if (credential) {
-            const token = credential.accessToken;
-            if (token) {
-              createRepoAndUploadFiles(
-                token,
-                data.codeResults[0].files,
-                "boilerplate-1"
-              );
-            } else {
-              console.error("Access token is undefined");
-            }
-          } else {
-            console.error("Credential is null");
-          }
-        })
-        .catch((error: any) => {
-          console.error("Failed to sign in with Github:", error);
-        });
+      setShowUploadButton(true);
+      toast({
+        title: "Code generation completed.",
+        status: "success",
+        duration: 9000,
+        isClosable: true,
+      });
     }
 
     setLoading(false);
@@ -133,7 +121,7 @@ const Generate = () => {
             });
 
             const username = response.data.login;
-            
+
             await axios.put(
               `https://api.github.com/repos/${username}/${repoName}/contents/${file.filename}`,
               {
@@ -171,25 +159,68 @@ const Generate = () => {
     repoName: string
   ) => {
     try {
-      const repo = await axios.post(`https://api.github.com/user/repos`, {
-        name: repoName,
-        description: 'Testing Boilerplate repo',
-        homepage: 'https://github.com',
-        private: false,
-        is_template: true
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28',
+      const repo = await axios.post(
+        `https://api.github.com/user/repos`,
+        {
+          name: repoName,
+          description: "Testing Boilerplate repo",
+          homepage: "https://github.com",
+          private: false,
+          is_template: true,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            Accept: "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+          },
         }
-      });
+      );
 
-      uploadFilesToRepo(token, files, repoName);
+      setTimeout(() => uploadFilesToRepo(token, files, repoName), 60000);
     } catch (error) {
       console.error("Error creating new repository", error);
     }
+  };
+
+  const handleGitHubAction = async () => {
+    setShowUploadButton(false);
+    setLoading(true);
+    const provider = new GithubAuthProvider();
+    provider.addScope("repo");
+    provider.addScope("read:user");
+
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        const credential = GithubAuthProvider.credentialFromResult(result);
+        if (credential) {
+          const token = credential.accessToken;
+          if (token) {
+            createRepoAndUploadFiles(token, codeResults, "boilerplate-1");
+          } else {
+            console.error("Access token is undefined");
+          }
+        } else {
+          console.error("Credential is null");
+        }
+      })
+      .catch((error: any) => {
+        console.error("Failed to sign in with Github:", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  const handleDownload = () => {
+    let zip = new JSZip();
+    codeResults.forEach((file) => {
+      zip.file(file.filename, file.content);
+    });
+    zip.generateAsync({ type: "blob" }).then(function (content) {
+      saveAs(content, "generated_code.zip");
+    });
   };
 
   return (
@@ -201,107 +232,69 @@ const Generate = () => {
       flexDirection="column"
       bgGradient="linear(to-r, black, gray)"
     >
-      <VStack
-        mt={4}
-        borderRadius="lg"
-        boxShadow="lg"
-        bg="gray.200"
-        p={5}
-        width={["90%", "85%", "80%", "60%"]}
-      >
-        <Text mb={4}>
-          <b>
-            Write a couple of sentences about what code you want to generate:
-          </b>
+      <VStack>
+        <Text fontSize="3xl" color="white">
+          What do you want to create?
         </Text>
-
+        <Wrap>
+          {frameworks.map((framework) => (
+            <Button
+              key={framework}
+              onClick={() => handleFrameworkSelect(framework)}
+              colorScheme={
+                selectedFrameworks.includes(framework) ? "purple" : "gray"
+              }
+            >
+              {framework}
+            </Button>
+          ))}
+        </Wrap>
         <Textarea
-          value={text}
+          placeholder="I want to build a blog with users and posts."
+          size="lg"
+          resize="none"
+          rows={4}
           onChange={handleTextChange}
-          placeholder="Enter your sentences here..."
-          size="sm"
-          resize="vertical"
-          mb={4}
-          bg={"gray.800"}
-          border={"1px"}
-          rounded={"2xl"}
-          fontWeight="bold"
-          color="whatsapp.200"
         />
-
-        {!loading && !showResults && (
-          <Wrap spacing="2" mt={4}>
-            {frameworks.map((framework) => (
-              <Button
-                rounded={"3xl"}
-                boxShadow={"dark-lg"}
-                key={framework}
-                onClick={() => handleFrameworkSelect(framework)}
-                colorScheme={
-                  selectedFrameworks.includes(framework) ? "green" : "gray"
-                }
-              >
-                {framework}
-              </Button>
-            ))}
-          </Wrap>
-        )}
-
-        <Button
-          onClick={handleSubmit}
-          bg={loading ? "red.500" : "gray.800"}
-          color="gray.100"
-          mt={4}
-          _hover={{ bgColor: "gray.700" }}
-        >
-          {loading ? "Cancel" : "Generate"}
+        <Button onClick={handleSubmit} size="lg">
+          Generate Code
         </Button>
-
         {loading && (
-          <Center mt={5}>
+          <Center>
             <Spinner
-              thickness="5px"
+              thickness="4px"
               speed="0.65s"
-              emptyColor="black"
-              color="green.500"
-              width={"60px"}
+              emptyColor="gray.200"
+              color="blue.500"
+              size="xl"
             />
           </Center>
         )}
-
-        <animated.div style={props}>
-          {codeResults.map((result) => (
-            <Box
-              p={4}
-              color="white"
-              mt="4"
-              bg="gray.800"
-              rounded="md"
-              shadow="md"
-              key={result.filename}
-              w="100%"
-              overflowX="auto"
-            >
-              <Text fontSize="lg" mb="2">
-                {result.filename}:
-              </Text>
-              <Code
-                fontSize="md"
-                p="3"
-                color="white"
-                bg="gray.800"
-                rounded={"3xl"}
-                boxShadow={"2xl"}
-              >
-                <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
-                  {result.content
-                    .replace(/(?<!&)lt;/g, "&lt;")
-                    .replace(/(?<!&)gt;/g, "&gt;")}
-                </pre>
+        {showResults && (
+          <animated.div style={props}>
+            {codeResults.map((fileResult, i) => (
+              <Code key={i} width="100%" p={4} overflowX="auto">
+                {fileResult.content}
               </Code>
-            </Box>
-          ))}
-        </animated.div>
+            ))}
+            {showUploadButton && (
+              <Box mt={5}>
+                <Button onClick={handleGitHubAction} mt={2}>
+                  Upload to GitHub
+                </Button>
+                <Button onClick={handleDownload} mt={2}>
+                  Download Files
+                </Button>
+              </Box>
+            )}
+            {loading && (
+              <Alert status="info" mt={5}>
+                <AlertIcon />
+                Uploading files to GitHub...
+              </Alert>
+            )}
+          </animated.div>
+        )}
       </VStack>
     </Box>
   );
