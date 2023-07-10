@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Center, VStack } from "@chakra-ui/react";
+import { Box, Center } from "@chakra-ui/react";
 import { Canvas } from "@react-three/fiber";
 import SceneComponent from "../components/SceneComponent";
 import MotionButtonComponent from "../components/MotionButtonComponent";

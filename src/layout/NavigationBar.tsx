@@ -6,24 +6,13 @@ import {
   Text,
   Link as ChakraLink,
   Icon,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Button,
   useDisclosure,
 } from "@chakra-ui/react";
 import { CgProfile } from "react-icons/cg";
 import { Link } from "react-router-dom";
 import { auth } from "../firebase/firebase";
-
-interface User {
-  displayName: string | null;
-  email: string | null;
-}
+import ProfileComponent from "../components/ProfileComponent";
+import { User } from "../utils/types";
 
 const NavigationBar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -85,40 +74,7 @@ const NavigationBar = () => {
           </Box>
         </Flex>
 
-        <Modal isOpen={isOpen} onClose={onClose}>
-          <ModalOverlay />
-          <ModalContent bgGradient="linear(to-r, green, black)">
-            <ModalHeader color='white'>Profile</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody color='white'>
-              {user ? (
-                <>
-                  <Text>{user.displayName}</Text>
-                  <Text>{user.email}</Text>
-                </>
-              ) : (
-                <Text>No user is signed in.</Text>
-              )}
-            </ModalBody>
-            <ModalFooter>
-              <Button colorScheme="green" mr={3} onClick={onClose}>
-                Close
-              </Button>
-              {user ? (
-                <Button colorScheme="red" onClick={() => {
-                    onClose()
-                    auth.signOut()
-                }}>
-                  Logout
-                </Button>
-              ) : (
-                <Button as={Link} to="login" colorScheme="blue" onClick={onClose}>
-                  Login
-                </Button>
-              )}
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
+        <ProfileComponent user={user} isOpen={isOpen} onClose={onClose} />
       </Flex>
     </Box>
   );
