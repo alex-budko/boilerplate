@@ -13,6 +13,7 @@ import {
   Alert,
   AlertIcon,
   useToast,
+  Heading,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { frameworks } from "../data/frameworks";
@@ -73,6 +74,7 @@ const Generate = () => {
 
     if (response.ok) {
       const data = await response.json();
+      console.log(data);
       setCodeResults(data.codeResults[0].files);
       setShowResults(true);
       setShowUploadButton(true);
@@ -224,7 +226,7 @@ const Generate = () => {
   };
 
   return (
-    <Box
+    <Center
       minH="100vh"
       display="flex"
       alignItems="center"
@@ -232,10 +234,20 @@ const Generate = () => {
       flexDirection="column"
       bgGradient="linear(to-r, black, gray)"
     >
-      <VStack>
-        <Text fontSize="3xl" color="white">
+      <VStack spacing={10}>
+        <Heading fontSize="2xl" mt="3" color="white">
           What do you want to create?
-        </Text>
+        </Heading>
+
+        <Textarea
+          placeholder="I want to build a blog with users and posts in React..."
+          size="lg"
+          resize="none"
+          color="purple.300"
+          rows={4}
+          onChange={handleTextChange}
+          width={"80vw"}
+        />
         <Wrap>
           {frameworks.map((framework) => (
             <Button
@@ -249,14 +261,13 @@ const Generate = () => {
             </Button>
           ))}
         </Wrap>
-        <Textarea
-          placeholder="I want to build a blog with users and posts."
+
+        <Button
+          onClick={handleSubmit}
           size="lg"
-          resize="none"
-          rows={4}
-          onChange={handleTextChange}
-        />
-        <Button onClick={handleSubmit} size="lg">
+          bgColor={"whatsapp.200"}
+          _hover={{ bg: "whatsapp.300" }}
+        >
           Generate Code
         </Button>
         {loading && (
@@ -272,17 +283,23 @@ const Generate = () => {
         )}
         {showResults && (
           <animated.div style={props}>
-            {codeResults.map((fileResult, i) => (
-              <Code key={i} width="100%" p={4} overflowX="auto">
-                {fileResult.content}
-              </Code>
-            ))}
             {showUploadButton && (
               <Box mt={5}>
-                <Button onClick={handleGitHubAction} mt={2}>
+                <Button
+                  onClick={handleGitHubAction}
+                  mt={2}
+                  colorScheme="blue"
+                  _hover={{ bg: "blue.500" }}
+                >
                   Upload to GitHub
                 </Button>
-                <Button onClick={handleDownload} mt={2}>
+                <Button
+                  onClick={handleDownload}
+                  mt={2}
+                  colorScheme="green"
+                  _hover={{ bg: "green.500" }}
+                  ml={2}
+                >
                   Download Files
                 </Button>
               </Box>
@@ -296,7 +313,7 @@ const Generate = () => {
           </animated.div>
         )}
       </VStack>
-    </Box>
+    </Center>
   );
 };
 

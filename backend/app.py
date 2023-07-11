@@ -5,25 +5,35 @@ import glob
 import subprocess
 import pexpect
 from pexpect.popen_spawn import PopenSpawn
+import time
+import shutil
 
 app = Flask(__name__)
 CORS(app)
 app.config['DEBUG'] = True
 
+
 @app.before_first_request
 def set_api_key():
     os.environ['OPENAI_API_KEY'] = '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'
 
+
 def run_command(command):
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    process = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     stdout, stderr = process.communicate()
     return stdout.decode('utf-8'), stderr.decode('utf-8'), process.returncode
 
 
 @app.route('/generate', methods=['POST'])
 def generate_code():
-    #Keep it simple, press enter, type y, type y
+    # delete the directories after collecting the file data
+    shutil.rmtree('backend/projects/boilerplate/workspace/')
+    shutil.rmtree('backend/projects/boilerplate/memory/')
 
+    # clear the prompt file
+    open('backend/projects/boilerplate/prompt', 'w').close()
+    
     data = request.get_json()
 
     if data is None:
@@ -37,19 +47,31 @@ def generate_code():
 
     if not frameworks:
         frameworks = []
-    
+
     try:
         with open('projects/boilerplate/prompt', 'w') as f:
-            f.write(f"We need to make the following program: {text} and uses these frameworks: {', '.join(frameworks)}")
+            f.write(
+                f"We have the following request for a program: '{text}' and we want to use these frameworks: {', '.join(frameworks)}")
     except FileNotFoundError:
         return jsonify({"error": "File not found"}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
     child = PopenSpawn('gpt-engineer projects/boilerplate')
-    child.sendline('anything works')
+
+    response = """I want to design an application that centers around user needs, 
+        providing an intuitive and seamless experience across all platforms. Ensuring 
+        optimal performance, reliability, maintainability, and scalability will be the
+        key focus, with a strong commitment to data security and privacy. Emphasis 
+        will be placed on handling unexpected situations gracefully and incorporating
+        user feedback for continuous improvement. The development process will follow
+        modern best practices, allowing for iterative enhancements to ensure a high-quality output."""
+    
+    child.sendline(response)
     child.sendline('y')
     child.sendline('y')
+
+    time.sleep(40)  # 40 second wait before file download. TODO: find optimal sleep time
 
     file_data = []
     for file in glob.glob('projects/boilerplate/workspace/*'):
