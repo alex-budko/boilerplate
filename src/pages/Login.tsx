@@ -4,6 +4,7 @@ import {
   GithubAuthProvider,
   signInWithRedirect,
   onAuthStateChanged,
+  getRedirectResult,
 } from "firebase/auth";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -25,20 +26,26 @@ const Login = () => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const db = getFirestore();
-
-        const userRef = doc(db, 'users', user.uid);
-
+        const userRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(userRef);
-      
+
         if (!docSnap.exists()) {
-          await setDoc(userRef, {
-            tokens: 0,
-          });
+          await setDoc(userRef, { tokens: 0 });
         }
 
         navigate("/generate");
       }
     });
+
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result && result.user) {
+          navigate("/generate");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
 
     return () => unsubscribe();
   }, [navigate]);

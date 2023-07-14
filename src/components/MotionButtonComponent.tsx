@@ -17,8 +17,9 @@ const MotionButtonComponent = ({ showButton, onClick }: { showButton: boolean, o
       transform="translateX(-50%)"
       variant="unstyled"
       size="lg"
+      color="purple.700"
       _hover={{
-        color: "gray.600",
+        color: "purple.400",
         boxShadow: "3xl",
       }}
       onClick={onClick}

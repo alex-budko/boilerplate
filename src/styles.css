@@ -56,9 +56,9 @@
   font-size: 18px;
 }
 
-.hero-page #root {
+/* .hero-page #root {
   height: 500vh;
-}
+} */
 
 .hero-page code {
   font-family: input-mono, monospace;

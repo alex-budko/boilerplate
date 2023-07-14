@@ -8,6 +8,7 @@ import Help from "./pages/Help";
 import Pricing from "./pages/Pricing";
 import About from "./pages/About";
 import Success from "./pages/Success";
+import Footer from "./layout/Footer";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="about" element={<About />} />
         <Route path="success" element={<Success />} />
       </Routes>
+      <Footer />
     </BrowserRouter>
   );
 }

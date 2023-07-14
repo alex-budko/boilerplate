@@ -3,7 +3,6 @@ from flask_cors import CORS
 import os
 import glob
 import subprocess
-import pexpect
 from pexpect.popen_spawn import PopenSpawn
 import time
 import shutil

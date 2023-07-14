@@ -1,25 +1,20 @@
-import { useEffect, useState } from "react";
-import { Box, Center } from "@chakra-ui/react";
+import { useEffect } from "react";
+import { Box, Center, VStack, Button } from "@chakra-ui/react";
 import { Canvas } from "@react-three/fiber";
-import MotionButtonComponent from "../components/MotionButtonComponent";
-import HeadingComponent from "../components/HeadingComponent";
-import AnimatedStepsComponent from "../components/AnimatedStepsComponent";
+import { useInView } from "react-intersection-observer";
 import { useNavigate } from "react-router-dom";
 import SceneComponent1 from "../components/SceneComponent1";
-import SceneComponent2 from "../components/SceneComponent2";
-import { InView } from 'react-intersection-observer';
+import HowItWorks from "../root-page/HowItWorks";
+import FAQ from "../root-page/FAQ";
+import WhyUs from "../root-page/WhyUs";
+import MotionButtonComponent from "../components/MotionButtonComponent";
 
 const HeroPage = () => {
   const navigate = useNavigate();
-  const [showButton, setShowButton] = useState(false);
 
-  const checkScrollBottom = () => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-      setShowButton(true);
-    } else {
-      setShowButton(false);
-    }
-  };
+  const [ref, inView] = useInView({
+    triggerOnce: false, 
+  });
 
   const onClick = () => {
     navigate("login");
@@ -34,49 +29,25 @@ const HeroPage = () => {
     };
   }, []);
 
-  useEffect(() => {
-    window.addEventListener("scroll", checkScrollBottom);
-
-    return () => window.removeEventListener("scroll", checkScrollBottom);
-  }, []);
-
   return (
-    <Box
-      position="fixed"
-      bgGradient="linear(to-r, black, gray)"
-      top="0"
-      bottom="0"
-      right="0"
-      left="0"
-    >
-      <HeadingComponent />
-      <InView threshold={0.5}>
-        {({ ref, inView }) => (
-          <div ref={ref} style={{ height: "100vh" }}>
-            {inView && (
-              <Canvas gl={{ antialias: false }}>
-                <SceneComponent1 />
-              </Canvas>
-            )}
-          </div>
+    <VStack bgGradient="linear(to-r, black, gray)">
+      <HowItWorks />
+
+      <Box h="100vh">
+        <Canvas gl={{ antialias: false }}>
+          <SceneComponent1 />
+        </Canvas>
+      </Box>
+      <FAQ />
+      <WhyUs />
+      <Box ref={ref}>
+        {inView && (
+          <Center>
+            <MotionButtonComponent onClick={onClick} showButton={inView} />
+          </Center>
         )}
-      </InView>
-      <InView threshold={0.5}>
-        {({ ref, inView }) => (
-          <div ref={ref} style={{ height: "100vh" }}>
-            {inView && (
-              <Canvas gl={{ antialias: false }}>
-                <SceneComponent2 />
-              </Canvas>
-            )}
-          </div>
-        )}
-      </InView>
-      <Center>
-        <AnimatedStepsComponent />
-        <MotionButtonComponent onClick={onClick} showButton={showButton} />
-      </Center>
-    </Box>
+      </Box>
+    </VStack>
   );
 };
 
