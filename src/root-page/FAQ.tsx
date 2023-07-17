@@ -30,16 +30,18 @@ const questions = [
 ];
 
 export default function FAQ() {
-  const color = useColorModeValue("gray.700", "white");
+  const color = useColorModeValue("gray.300", "white");
+  const bgColor = useColorModeValue("gray.700", "gray.800");
+  const hoverColor = useColorModeValue("gray.600", "gray.700");
 
   return (
-    <HStack spacing={10} m="3">
+    <VStack spacing={5} m="3" w="100%" align="start">
       <Box>
         <Heading color={color} fontSize={"2xl"} fontFamily={"body"}>
           Frequently Asked Questions
         </Heading>
       </Box>
-      <Accordion allowToggle w="50%">
+      <Accordion allowToggle w="100%" colorScheme="gray">
         {questions.map((faq, index) => (
           <AccordionItem key={index}>
             <h2>
@@ -47,13 +49,13 @@ export default function FAQ() {
                 <Box flex="1" textAlign="left">
                   {faq.question}
                 </Box>
-                <AccordionIcon />
+                <AccordionIcon color={color} />
               </AccordionButton>
             </h2>
             <AccordionPanel pb={4}>{faq.answer}</AccordionPanel>
           </AccordionItem>
         ))}
       </Accordion>
-    </HStack>
+    </VStack>
   );
 }

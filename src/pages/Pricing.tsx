@@ -15,7 +15,7 @@ import {
 import { FaCheckCircle } from 'react-icons/fa';
 import { loadStripe } from "@stripe/stripe-js";
 
-const stripePromise = loadStripe('pk_live_51NPtpiJYg5O3ufDJs8bcAM7DqQpIDwgDxRwV2It0Am37MgS3o0y4syEsOsDE0p2ItIu4yEECOjiwaMhGrvyWjyNO00J3G5MYs1');
+const stripePromise = loadStripe('pk_test_51NPtpiJYg5O3ufDJLQkEce6f7xKDmZcJw1THF5VowwrxBRwjYejFwRJ8oXcp50bA09oLT2DgOdgNw3xL8jkL4ytN00RU7fVxrx');
 
 function PriceWrapper({ children }: { children: ReactNode }) {
   return (
@@ -75,13 +75,13 @@ export default function ThreeTierPricing() {
                 $
               </Text>
               <Text fontSize="5xl" fontWeight="900">
-                79
+                1.99
               </Text>
               <Text fontSize="3xl" color="gray.500">
-                /tokens
+                / 2 tokens
               </Text>
             </HStack>
-            <Button mt={4} bgColor={'blue.300'} onClick={() => handleCheckout('price_1NRL83JYg5O3ufDJE9wJr9iq')}>Purchase</Button>
+            <Button mt={4} bgColor={'blue.300'} onClick={() => handleCheckout('price_1NUeWRJYg5O3ufDJsjAKXXJJ')}>Purchase</Button>
           </Box>
         </PriceWrapper>
 
@@ -113,13 +113,13 @@ export default function ThreeTierPricing() {
                   $
                 </Text>
                 <Text fontSize="5xl" fontWeight="900">
-                  149
+                  9.99
                 </Text>
                 <Text fontSize="3xl" color="gray.500">
-                  /month
+                  / 15 tokens
                 </Text>
               </HStack>
-              <Button mt={4} bgColor={'whatsapp.600'} onClick={() => handleCheckout('price_1NRL83JYg5O3ufDJE9wJr9iq')}>Purchase</Button>
+              <Button mt={4} bgColor={'whatsapp.600'} onClick={() => handleCheckout('price_1NUeWRJYg5O3ufDJsjAKXXJJ')}>Purchase</Button>
             </Box>
           </Box>
         </PriceWrapper>
@@ -127,20 +127,20 @@ export default function ThreeTierPricing() {
         <PriceWrapper>
           <Box  bgColor={'white'} py={4} px={12}>
             <Text fontWeight="500" fontSize="2xl">
-              Scale
+              Premium
             </Text>
             <HStack justifyContent="center">
               <Text fontSize="3xl" fontWeight="600">
                 $
               </Text>
               <Text fontSize="5xl" fontWeight="900">
-                349
+                14.99
               </Text>
               <Text fontSize="3xl" color="gray.500">
-                /month
+                / 25 tokens
               </Text>
             </HStack>
-            <Button mt={4} bgColor={'yellow.400'} onClick={() => handleCheckout('price_1NRL83JYg5O3ufDJE9wJr9iq')}>Purchase</Button>
+            <Button mt={4} bgColor={'yellow.400'} onClick={() => handleCheckout('price_1NUeWRJYg5O3ufDJsjAKXXJJ')}>Purchase</Button>
           </Box>
         </PriceWrapper>
       </Stack>

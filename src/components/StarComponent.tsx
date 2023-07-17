@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { Mesh } from "three";
 import { degreesToRadians, mix } from "popmotion";
 

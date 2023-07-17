@@ -31,6 +31,7 @@ interface FileResult {
 const Generate = () => {
   const [text, setText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [uploadLoading, setUploadLoading] = useState<boolean>(false);
   const [selectedFrameworks, setSelectedFrameworks] = useState<string[]>([
     "Any",
   ]);
@@ -60,6 +61,7 @@ const Generate = () => {
     e.preventDefault();
     setShowResults(false);
     setLoading(true);
+    setShowUploadButton(false);
 
     const response = await fetch("http://localhost:5000/generate", {
       method: "POST",
@@ -189,6 +191,8 @@ const Generate = () => {
   const handleGitHubAction = async () => {
     setShowUploadButton(false);
     setLoading(true);
+    setUploadLoading(true);
+
     const provider = new GithubAuthProvider();
     provider.addScope("repo");
     provider.addScope("read:user");
@@ -213,6 +217,8 @@ const Generate = () => {
       .finally(() => {
         setLoading(false);
       });
+
+    setUploadLoading(false);
   };
 
   const handleDownload = () => {
@@ -235,41 +241,46 @@ const Generate = () => {
       bgGradient="linear(to-r, black, gray)"
     >
       <VStack spacing={10}>
-        <Heading fontSize="2xl" mt="3" color="white">
-          What do you want to create?
-        </Heading>
+        {!loading && (
+          <>
+            <Heading fontSize="2xl" mt="3" color="white">
+              What do you want to create?
+            </Heading>
+            <Textarea
+              placeholder="I want to build a blog with users and posts in React..."
+              size="lg"
+              resize="none"
+              color="purple.300"
+              rows={4}
+              onChange={handleTextChange}
+              width={"80vw"}
+            />
 
-        <Textarea
-          placeholder="I want to build a blog with users and posts in React..."
-          size="lg"
-          resize="none"
-          color="purple.300"
-          rows={4}
-          onChange={handleTextChange}
-          width={"80vw"}
-        />
-        <Wrap>
-          {frameworks.map((framework) => (
+            <Wrap>
+              {frameworks.map((framework) => (
+                <Button
+                  key={framework}
+                  onClick={() => handleFrameworkSelect(framework)}
+                  colorScheme={
+                    selectedFrameworks.includes(framework) ? "purple" : "gray"
+                  }
+                >
+                  {framework}
+                </Button>
+              ))}
+            </Wrap>
+
             <Button
-              key={framework}
-              onClick={() => handleFrameworkSelect(framework)}
-              colorScheme={
-                selectedFrameworks.includes(framework) ? "purple" : "gray"
-              }
+              onClick={handleSubmit}
+              size="lg"
+              bgColor={"whatsapp.200"}
+              _hover={{ bg: "whatsapp.300" }}
             >
-              {framework}
+              Generate Code
             </Button>
-          ))}
-        </Wrap>
+          </>
+        )}
 
-        <Button
-          onClick={handleSubmit}
-          size="lg"
-          bgColor={"whatsapp.200"}
-          _hover={{ bg: "whatsapp.300" }}
-        >
-          Generate Code
-        </Button>
         {loading && (
           <Center>
             <Spinner
@@ -281,9 +292,10 @@ const Generate = () => {
             />
           </Center>
         )}
+
         {showResults && (
           <animated.div style={props}>
-            {showUploadButton && (
+            {!uploadLoading && showUploadButton && (
               <Box mt={5}>
                 <Button
                   onClick={handleGitHubAction}
@@ -304,7 +316,7 @@ const Generate = () => {
                 </Button>
               </Box>
             )}
-            {loading && (
+            {uploadLoading && (
               <Alert status="info" mt={5}>
                 <AlertIcon />
                 Uploading files to GitHub...

@@ -22,5 +22,3 @@ export const db = initializeFirestore(app, {
     tabManager: persistentMultipleTabManager()
   })
 });
-
-connectFirestoreEmulator(db, 'localhost', 8080);

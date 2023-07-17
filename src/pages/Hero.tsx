@@ -31,15 +31,22 @@ const HeroPage = () => {
 
   return (
     <VStack bgGradient="linear(to-r, black, gray)">
-      <HowItWorks />
-
-      <Box h="100vh">
+      <Box h="100vh" w="97vw">
         <Canvas gl={{ antialias: false }}>
           <SceneComponent1 />
         </Canvas>
       </Box>
+      <HowItWorks />
+
+      <Box h="100vh" w="97vw">
+        <Canvas gl={{ antialias: false }}>
+          <SceneComponent1 />
+        </Canvas>
+      </Box>
+      
       <FAQ />
-      <WhyUs />
+
+      {/* <WhyUs /> */}
       <Box ref={ref}>
         {inView && (
           <Center>

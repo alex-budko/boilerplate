@@ -1,5 +1,5 @@
 import { Box, Button, Heading, Icon } from "@chakra-ui/react";
-import { auth } from "../firebase/firebase";
+import { db, auth } from "../firebase/firebase";
 import {
   GithubAuthProvider,
   signInWithRedirect,
@@ -25,7 +25,6 @@ const Login = () => {
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const db = getFirestore();
         const userRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(userRef);
 

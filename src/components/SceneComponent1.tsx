@@ -5,7 +5,7 @@ import { degreesToRadians, progress } from "popmotion";
 import StarComponent from "./StarComponent";
 
 function SceneComponent1({ numStars = 100 }) {
-  const color = "green";
+  const color = "black";
 
   const Icosahedron = () => (
     <mesh rotation-x={0.35}>

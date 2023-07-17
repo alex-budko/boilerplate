@@ -11,15 +11,15 @@ const MotionButtonComponent = ({ showButton, onClick }: { showButton: boolean, o
       animate={{ opacity: showButton ? 1 : 0 }}
       transition={{ duration: 0.5 }}
       position="fixed"
-      fontSize={"3xl"}
+      fontSize={"5xl"}
       bottom="20px"
       left="50%"
       transform="translateX(-50%)"
       variant="unstyled"
       size="lg"
-      color="purple.700"
+      color="green.700"
       _hover={{
-        color: "purple.400",
+        color: "green.400",
         boxShadow: "3xl",
       }}
       onClick={onClick}

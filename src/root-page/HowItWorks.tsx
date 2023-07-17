@@ -23,7 +23,7 @@ import {
     {
       title: 'Export the Code',
       description: 'Finally, click the button to export the code. You can choose to push it directly to your GitHub repository or download the files to your local machine.',
-      imageUrl: 'https://images.unsplash.com/photo-1522199710521-72d69614c702?ixid=MXwxMjA3fDB8MHxwaG90by1wYWgelc1fHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+      imageUrl: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
     },
   ];
   

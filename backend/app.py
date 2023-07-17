@@ -27,12 +27,15 @@ def run_command(command):
 @app.route('/generate', methods=['POST'])
 def generate_code():
     # delete the directories after collecting the file data
-    shutil.rmtree('backend/projects/boilerplate/workspace/')
-    shutil.rmtree('backend/projects/boilerplate/memory/')
+    try:
+        # shutil.rmtree('backend/projects/boilerplate/workspace/')
+        # shutil.rmtree('backend/projects/boilerplate/memory/')
 
-    # clear the prompt file
-    open('backend/projects/boilerplate/prompt', 'w').close()
-    
+        open('backend/projects/boilerplate/prompt', 'w').close()
+
+    except Exception as e:
+        print("Error here:", e)
+        
     data = request.get_json()
 
     if data is None:
@@ -70,7 +73,7 @@ def generate_code():
     child.sendline('y')
     child.sendline('y')
 
-    time.sleep(40)  # 40 second wait before file download. TODO: find optimal sleep time
+    time.sleep(60) 
 
     file_data = []
     for file in glob.glob('projects/boilerplate/workspace/*'):
