@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import JSZip from "jszip";
 import {
   Box,
-  Text,
   Textarea,
   Button,
   Spinner,
   VStack,
   Wrap,
   Center,
-  Code,
   Alert,
   AlertIcon,
   useToast,
@@ -81,16 +79,30 @@ const Generate = () => {
       setCodeResults(data.codeResults[0].files);
       setShowResults(true);
       setShowUploadButton(true);
+    } else {
       toast({
-        title: "Code generation completed.",
-        status: "success",
-        duration: 9000,
+        title: "An error occurred.",
+        description: "Please try again later.",
+        status: "error",
+        duration: 3000,
         isClosable: true,
       });
     }
-
     setLoading(false);
   };
+
+  useEffect(() => {
+    const socket = io("http://localhost:5000");
+
+    socket.on("question_prompt", (data) => {
+      const userResponse = prompt(data.prompt);
+      socket.emit("user_response", { response: userResponse });
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const props = useSpring({
     from: { opacity: 0, transform: "translate3d(0,-40px,0)" },
@@ -236,12 +248,12 @@ const Generate = () => {
     const socket = io("http://localhost:5000"); 
 
     socket.on("question_prompt", (data: any) => {
-      const userResponse = prompt(data.prompt); // Display the prompt and get the user's response
-      socket.emit("user_response", userResponse); // Send the user's response back to the backend
+      const userResponse = prompt(data.prompt); 
+      socket.emit("user_response", userResponse); 
     });
 
     return () => {
-      socket.disconnect(); // Clean up the socket connection when the component is unmounted
+      socket.disconnect(); 
     };
   }, []);
 

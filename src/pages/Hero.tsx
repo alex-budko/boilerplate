@@ -8,6 +8,7 @@ import HowItWorks from "../root-page/HowItWorks";
 import FAQ from "../root-page/FAQ";
 import WhyUs from "../root-page/WhyUs";
 import MotionButtonComponent from "../components/MotionButtonComponent";
+import Reviews from "../root-page/Reviews";
 
 const HeroPage = () => {
   const navigate = useNavigate();
@@ -47,6 +48,8 @@ const HeroPage = () => {
       <FAQ />
 
       {/* <WhyUs /> */}
+      <Reviews />
+
       <Box ref={ref}>
         {inView && (
           <Center>

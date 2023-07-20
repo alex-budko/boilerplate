@@ -3,12 +3,13 @@ from flask_cors import CORS
 import os
 import glob
 import subprocess
-from pexpect.popen_spawn import PopenSpawn
-import time
+import pexpect
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 CORS(app)
 app.config['DEBUG'] = True
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 @app.before_first_request
 def set_api_key():
@@ -50,22 +51,14 @@ def generate_code():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-    child = PopenSpawn('gpt-engineer projects/boilerplate')
-
-    response = """I want to design an application that centers around user needs, 
-        providing an intuitive and seamless experience across all platforms. Ensuring 
-        optimal performance, reliability, maintainability, and scalability will be the
-        key focus, with a strong commitment to data security and privacy. Emphasis 
-        will be placed on handling unexpected situations gracefully and incorporating
-        user feedback for continuous improvement. The development process will follow
-        modern best practices, allowing for iterative enhancements to ensure a high-quality output."""
+    child = pexpect.spawn('gpt-engineer projects/boilerplate')
 
     terminal_output = []
     while child.isalive():
-        line = child.readline().strip().decode('utf-8')
+        line = child.readline().strip()
         if line:
             if line.endswith('?'):
-                emit_question_prompt(line)
+                emit_question_prompt(line, child)
             else:
                 terminal_output.append(line)
 
@@ -89,9 +82,14 @@ def generate_code():
         'terminalOutput': terminal_output
     })
 
-def emit_question_prompt(prompt):
-    from flask_socketio import emit
+def emit_question_prompt(prompt, child):
+    @socketio.on('user_response')
+    def handle_response(data):
+        user_response = data.get('response')
+        if user_response:
+            child.sendline(user_response)
 
-    emit('question_prompt', {'prompt': prompt}, namespace='/questions')
-    user_response = socketio.wait_for_event('user_response', namespace='/questions')
-    child.sendline(user_response)
+    emit('question_prompt', {'prompt': prompt})
+
+if __name__ == "__main__":
+    socketio.run(app)
