@@ -22,6 +22,7 @@ import { getAuth, GithubAuthProvider, signInWithPopup } from "firebase/auth";
 import axios from "axios";
 import "firebase/auth";
 import { saveAs } from "file-saver";
+import { io } from "socket.io-client";
 
 interface FileResult {
   filename: string;
@@ -230,6 +231,19 @@ const Generate = () => {
       saveAs(content, "generated_code.zip");
     });
   };
+
+  useEffect(() => {
+    const socket = io("http://localhost:5000"); 
+
+    socket.on("question_prompt", (data: any) => {
+      const userResponse = prompt(data.prompt); // Display the prompt and get the user's response
+      socket.emit("user_response", userResponse); // Send the user's response back to the backend
+    });
+
+    return () => {
+      socket.disconnect(); // Clean up the socket connection when the component is unmounted
+    };
+  }, []);
 
   return (
     <Center
