@@ -5,7 +5,6 @@ import glob
 import subprocess
 from pexpect.popen_spawn import PopenSpawn
 import time
-import shutil
 
 app = Flask(__name__)
 CORS(app)
@@ -26,11 +25,7 @@ def run_command(command):
 
 @app.route('/generate', methods=['POST'])
 def generate_code():
-    # delete the directories after collecting the file data
     try:
-        # shutil.rmtree('backend/projects/boilerplate/workspace/')
-        # shutil.rmtree('backend/projects/boilerplate/memory/')
-
         open('backend/projects/boilerplate/prompt', 'w').close()
 
     except Exception as e:
