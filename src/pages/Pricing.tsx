@@ -42,8 +42,8 @@ const handleCheckout = async (priceId: string) => {
   const {error} = await stripe.redirectToCheckout({
     lineItems: [{price: priceId, quantity: 1}],
     mode: 'subscription',
-    successUrl: 'https://your-website.com/success',
-    cancelUrl: 'https://your-website.com/cancel',
+    successUrl: 'http://localhost:3000/success',
+    cancelUrl: 'http://localhost:3000/fail',
   });
 
   if (error) {
@@ -75,10 +75,10 @@ export default function ThreeTierPricing() {
                 $
               </Text>
               <Text fontSize="5xl" fontWeight="900">
-                1.99
+                4.99
               </Text>
               <Text fontSize="3xl" color="gray.500">
-                / 2 tokens
+                / month
               </Text>
             </HStack>
             <Button mt={4} bgColor={'blue.300'} onClick={() => handleCheckout('price_1NUeWRJYg5O3ufDJsjAKXXJJ')}>Purchase</Button>
@@ -116,7 +116,7 @@ export default function ThreeTierPricing() {
                   9.99
                 </Text>
                 <Text fontSize="3xl" color="gray.500">
-                  / 15 tokens
+                  / month
                 </Text>
               </HStack>
               <Button mt={4} bgColor={'whatsapp.600'} onClick={() => handleCheckout('price_1NUeWRJYg5O3ufDJsjAKXXJJ')}>Purchase</Button>
@@ -134,10 +134,10 @@ export default function ThreeTierPricing() {
                 $
               </Text>
               <Text fontSize="5xl" fontWeight="900">
-                14.99
+                29.99
               </Text>
               <Text fontSize="3xl" color="gray.500">
-                / 25 tokens
+                / month
               </Text>
             </HStack>
             <Button mt={4} bgColor={'yellow.400'} onClick={() => handleCheckout('price_1NUeWRJYg5O3ufDJsjAKXXJJ')}>Purchase</Button>
