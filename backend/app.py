@@ -7,7 +7,7 @@ import pexpect
 from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
-CORS(app)
+cors = CORS(app, resources={r"/generate": {"origins": "*", "methods": ["POST"], "allow_headers": ["Content-Type"]}})
 app.config['DEBUG'] = True
 socketio = SocketIO(app, cors_allowed_origins="*")
 
@@ -23,13 +23,7 @@ def run_command(command):
 
 @app.route('/generate', methods=['POST'])
 def generate_code():
-    try:
-        open('backend/projects/boilerplate/prompt', 'w').close()
-    except Exception as e:
-        print("Error here:", e)
-
     data = request.get_json()
-
     if data is None:
         return jsonify({"error": "Invalid JSON data received"}), 400
 
@@ -52,15 +46,19 @@ def generate_code():
         return jsonify({"error": str(e)}), 500
 
     child = pexpect.spawn('gpt-engineer projects/boilerplate')
-
     terminal_output = []
+    
     while child.isalive():
-        line = child.readline().strip()
-        if line:
-            if line.endswith('?'):
-                emit_question_prompt(line, child)
-            else:
-                terminal_output.append(line)
+        try:
+            child.expect('\n', timeout=None)
+            line = child.before.decode('utf-8').strip()
+            if line:
+                if line.endswith('?'):
+                    emit_question_prompt(line, child)
+                else:
+                    terminal_output.append(line)
+        except pexpect.exceptions.EOF:
+            break
 
     child.wait()
 
@@ -89,7 +87,7 @@ def emit_question_prompt(prompt, child):
         if user_response:
             child.sendline(user_response)
 
-    emit('question_prompt', {'prompt': prompt})
+    socketio.emit('question_prompt', {'prompt': prompt})
 
 if __name__ == "__main__":
-    socketio.run(app)
+    socketio.run(app, host='0.0.0.0', port=5000)
