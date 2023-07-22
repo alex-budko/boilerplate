@@ -1,7 +1,10 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
-import { initializeFirestore, connectFirestoreEmulator, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
+import firebase from "firebase/compat/app";
+import "firebase/firestore";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyAO195mxJXiiN0D7Focrs69Y0xggIK1qv4",

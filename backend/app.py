@@ -11,6 +11,8 @@ cors = CORS(app, resources={r"/generate": {"origins": "*", "methods": ["POST"], 
 app.config['DEBUG'] = True
 socketio = SocketIO(app, cors_allowed_origins="*")
 
+active_child = None
+
 @app.before_first_request
 def set_api_key():
     os.environ['OPENAI_API_KEY'] = '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'
@@ -45,22 +47,23 @@ def generate_code():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-    child = pexpect.spawn('gpt-engineer projects/boilerplate')
+    global active_child
+    active_child = pexpect.spawn('gpt-engineer projects/boilerplate')
     terminal_output = []
     
-    while child.isalive():
+    while active_child.isalive():
         try:
-            child.expect('\n', timeout=None)
-            line = child.before.decode('utf-8').strip()
+            active_child.expect('\n', timeout=None)
+            line = active_child.before.decode('utf-8').strip()
             if line:
                 if line.endswith('?'):
-                    emit_question_prompt(line, child)
+                    emit_question_prompt(line)
                 else:
                     terminal_output.append(line)
         except pexpect.exceptions.EOF:
             break
 
-    child.wait()
+    active_child.wait()
 
     file_data = []
     for file in glob.glob('projects/boilerplate/workspace/*'):
@@ -80,14 +83,15 @@ def generate_code():
         'terminalOutput': terminal_output
     })
 
-def emit_question_prompt(prompt, child):
-    @socketio.on('user_response')
-    def handle_response(data):
-        user_response = data.get('response')
-        if user_response:
-            child.sendline(user_response)
-
+def emit_question_prompt(prompt):
     socketio.emit('question_prompt', {'prompt': prompt})
+
+@socketio.on('user_response')
+def handle_response(data):
+    global active_child
+    user_response = data.get('response')
+    if user_response and active_child:
+        active_child.sendline(user_response)
 
 if __name__ == "__main__":
     socketio.run(app, host='0.0.0.0', port=5000)

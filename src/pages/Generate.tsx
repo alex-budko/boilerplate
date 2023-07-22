@@ -91,19 +91,6 @@ const Generate = () => {
     setLoading(false);
   };
 
-  useEffect(() => {
-    const socket = io("http://localhost:5000");
-
-    socket.on("question_prompt", (data) => {
-      const userResponse = prompt(data.prompt);
-      socket.emit("user_response", { response: userResponse });
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
   const props = useSpring({
     from: { opacity: 0, transform: "translate3d(0,-40px,0)" },
     to: showResults
@@ -244,18 +231,18 @@ const Generate = () => {
     });
   };
 
-  useEffect(() => {
-    const socket = io("http://localhost:5000"); 
+  const socket = io("http://localhost:5000");
 
-    socket.on("question_prompt", (data: any) => {
-      const userResponse = prompt(data.prompt); 
-      socket.emit("user_response", userResponse); 
+  useEffect(() => {
+    socket.on("question_prompt", (data) => {
+      const userResponse = prompt(data.prompt);
+      socket.emit("user_response", { response: userResponse });
     });
 
     return () => {
-      socket.disconnect(); 
+      socket.disconnect();
     };
-  }, []);
+  }, [socket]);
 
   return (
     <Center
