@@ -48,7 +48,7 @@ const HeroPage = () => {
       <FAQ />
 
       {/* <WhyUs /> */}
-      <Reviews />
+      {/* <Reviews /> */}
 
       <Box ref={ref}>
         {inView && (

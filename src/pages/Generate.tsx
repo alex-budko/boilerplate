@@ -233,17 +233,12 @@ const Generate = () => {
 
   const socket = io("http://localhost:5000");
 
-  useEffect(() => {
-    socket.on("question_prompt", (data) => {
-      const userResponse = prompt(data.prompt);
-      socket.emit("user_response", { response: userResponse });
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [socket]);
-
+  socket.on("question_prompt", (data) => {
+    console.log(data);
+    const userResponse = prompt(data.prompt);
+    socket.emit("user_response", { response: userResponse });
+  });
+    
   return (
     <Center
       minH="100vh"

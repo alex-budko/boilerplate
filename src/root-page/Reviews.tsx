@@ -6,9 +6,9 @@ export default function Reviews() {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll();
   const reviews = [
-    { id: 1, name: "John Doe", content: "Review 1" },
-    { id: 2, name: "Jane Smith", content: "Review 2" },
-    { id: 3, name: "Bob Johnson", content: "Review 3" },
+    { id: 1, name: "John Doe", content: "Love it" },
+    { id: 2, name: "Jane Smith", content: "Love it" },
+    { id: 3, name: "Bob Johnson", content: "Love it" },
   ];
 
   return (
@@ -34,8 +34,8 @@ export default function Reviews() {
               borderWidth={1}
               borderColor="gray.200"
               borderRadius="md"
-              w='10vw'
-              h='10vw'
+              w='15vw'
+              h='15vw'
             >
               <strong>{review.name}</strong>
               <p>{review.content}</p>
