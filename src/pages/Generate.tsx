@@ -12,6 +12,16 @@ import {
   AlertIcon,
   useToast,
   Heading,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  FormControl,
+  FormLabel,
+  Input,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { frameworks } from "../data/frameworks";
@@ -28,6 +38,8 @@ interface FileResult {
 }
 
 const Generate = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [userResponse, setUserResponse] = useState("");
   const [text, setText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [uploadLoading, setUploadLoading] = useState<boolean>(false);
@@ -235,10 +247,17 @@ const Generate = () => {
 
   socket.on("question_prompt", (data) => {
     console.log(data);
-    const userResponse = prompt(data.prompt);
-    socket.emit("user_response", { response: userResponse });
+    setUserResponse("");
+    onOpen(); 
   });
-    
+  
+  useEffect(() => {
+    if (!isOpen && userResponse !== "") {
+      socket.emit("user_response", { response: userResponse });
+    }
+  }, [isOpen, userResponse]);
+  
+
   return (
     <Center
       minH="100vh"
@@ -288,6 +307,23 @@ const Generate = () => {
             </Button>
           </>
         )}
+
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Input Required</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <FormControl>
+                <FormLabel>Please enter your response:</FormLabel>
+                <Input
+                  value={userResponse}
+                  onChange={(e) => setUserResponse(e.target.value)}
+                />
+              </FormControl>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
 
         {loading && (
           <Center>

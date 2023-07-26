@@ -6,6 +6,9 @@ import subprocess
 import pexpect
 from flask_socketio import SocketIO
 from threading import Event
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 user_response_event = Event() 
 user_response = None  
@@ -29,6 +32,7 @@ def run_command(command):
 
 @app.route('/generate', methods=['POST'])
 def generate_code():
+    global active_child, user_response_event, user_response
     data = request.get_json()
     if data is None:
         return jsonify({"error": "Invalid JSON data received"}), 400
@@ -51,35 +55,41 @@ def generate_code():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-    global active_child, user_response_event, user_response
     active_child = pexpect.spawn('gpt-engineer projects/boilerplate')
 
     output_buffer = ""
+    buffer_count = 0
     while active_child.isalive():
-        print('HERE 1')
         try:
-            print('HERE 2')
             active_child.expect('\n', timeout=None)
             line = active_child.before.decode('utf-8').strip()
 
-            print('HERE 3')
-            
+            logging.debug('Output from child process: ' + line)
+
+            # If the line starts with a number followed by a period, increment the buffer count
+            if re.match(r'^\d+\.', line):
+                buffer_count += 1
+
             # Add the line to the buffer
             output_buffer += line + "\n"
-            
-            # If the line ends with ')', emit the buffered output as a single message and clear the buffer
-            if line.endswith(')'):
-                print('HERE 4')
+
+            # If the buffer count reaches 10 or the line is a question, emit the buffered output as a single message and clear the buffer
+            if buffer_count == 10 or \
+                line.startswith('Did the generated code run at all?') or \
+                line.startswith('Did the generated code do everything you wanted?'):
+                logging.debug('Output Buffer: ' + output_buffer)
                 socketio.emit('question_prompt', {'output': output_buffer.strip()})
                 output_buffer = ""
+                buffer_count = 0
 
-                print('HERE 5')
                 user_response_event.wait()  # Wait for the event to be set
                 user_response_event.clear()  # Reset the event for the next iteration
                 
                 active_child.sendline(user_response)  # Send the user's answer to the child process
         except pexpect.exceptions.EOF:
             break
+        except Exception as e:
+            logging.error('Error in child process handling: ' + str(e))
 
     # If there is still output in the buffer when the process ends, emit it
     if output_buffer:
