@@ -38,11 +38,7 @@ const HeroPage = () => {
       </Heading>
 
       <HowItWorks />
-
-      <Heading>
-        <Typewriter text="Check Out This Logo Animation..." speed={100} />
-      </Heading>
-
+      
       <Box h="100vh" w="97vw">
         <Canvas gl={{ antialias: false }}>
           <SceneComponent />
