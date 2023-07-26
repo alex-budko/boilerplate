@@ -7,6 +7,7 @@ import pexpect
 from flask_socketio import SocketIO
 from threading import Event
 import logging
+import re
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -120,7 +121,7 @@ def handle_response(data):
     user_response = data.get('response')
     if user_response and active_child:
         active_child.sendline(user_response)
-        user_response_event.set()  # Set the event to signal that the user's response is ready
+        user_response_event.set() 
 
 if __name__ == "__main__":
     socketio.run(app, host='0.0.0.0', port=5000)
