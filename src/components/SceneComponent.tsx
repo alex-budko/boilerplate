@@ -25,7 +25,7 @@ function SceneComponent1({ numStars = 100 }) {
     return (
       <mesh ref={ref}>
         <torusGeometry args={[0.5, 0.2, 16, 100]} />
-        <meshPhongMaterial wireframe color="orange" />
+        <meshPhongMaterial wireframe color="purple" />
       </mesh>
     );
   };

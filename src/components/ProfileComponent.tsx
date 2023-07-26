@@ -1,4 +1,3 @@
-// ProfileComponent.tsx
 import React from 'react';
 import {
   Modal,
@@ -10,8 +9,9 @@ import {
   ModalFooter,
   Text,
   Button,
-  Box,
-  VStack
+  VStack,
+  Avatar,
+  Heading
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import { auth } from "../firebase/firebase";
@@ -27,13 +27,14 @@ const ProfileComponent: React.FC<ProfileComponentProps> = ({ user, isOpen, onClo
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
-      <ModalContent bgGradient="linear(to-r, green, black)">
+      <ModalContent bgGradient="linear(to-r, purple, black)">
         <ModalHeader color='white'>Profile</ModalHeader>
         <ModalCloseButton />
         <ModalBody color='white'>
           {user ? (
-            <VStack spacing={4}>
-              <Text>Name: {user.displayName}</Text>
+            <VStack spacing={4} align="center">
+              <Avatar name={user.displayName || ''} size="2xl"/>
+              <Heading size="lg" color="white" py={2}>{user.displayName}</Heading>
               <Text>Email: {user.email}</Text>
             </VStack>
           ) : (

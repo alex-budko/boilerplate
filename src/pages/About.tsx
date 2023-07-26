@@ -49,9 +49,9 @@ function About() {
       <Tooltip rounded='2xl' boxShadow='dark-lg' label="This is the best way to reach out for any queries or contributions!">
         <Text fontSize="1xl" color="white" textAlign="center">
           Interested in contributing or have any questions? Please feel free to
-          reach out or contribute on our
+          reach out
           <Link
-            href="https://github.com/AlexBudko/Boilerplate.AI"
+            href="https://github.com/alex-budko/"
             color="teal.500"
             isExternal
           >

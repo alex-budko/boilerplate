@@ -55,7 +55,7 @@ export default function ThreeTierPricing() {
   return (
     <Box bgGradient="linear(to-r, black, gray)" minH='94vh' py={12}>
       <VStack spacing={2} textAlign="center">
-        <Heading as="h1" fontSize="4xl">
+        <Heading as="h1" fontSize="4xl" color="white">
           Plans that fit your need
         </Heading>
       </VStack>
@@ -66,7 +66,7 @@ export default function ThreeTierPricing() {
         spacing={{ base: 4, lg: 10 }}
         py={10}>
         <PriceWrapper>
-          <Box bgColor={'white'} py={4} px={12}>
+          <Box py={4} px={12} bgColor={'gray.800'} color={'white'}>
             <Text fontWeight="500" fontSize="2xl">
               Hobby
             </Text>
@@ -77,16 +77,16 @@ export default function ThreeTierPricing() {
               <Text fontSize="5xl" fontWeight="900">
                 4.99
               </Text>
-              <Text fontSize="3xl" color="gray.500">
+              <Text fontSize="3xl">
                 / month
               </Text>
             </HStack>
-            <Button mt={4} bgColor={'blue.300'} onClick={() => handleCheckout('price_1NUeWRJYg5O3ufDJsjAKXXJJ')}>Purchase</Button>
+            <Button mt={4} bgColor={'blue.300'} color='white' onClick={() => handleCheckout('price_1NUeWRJYg5O3ufDJsjAKXXJJ')} _hover={{ bg: "blue.400" }}>Purchase</Button>
           </Box>
         </PriceWrapper>
 
         <PriceWrapper>
-          <Box position="relative">
+          <Box position="relative" bgColor={'gray.800'} color={'white'}>
             <Box
               position="absolute"
               top="-16px"
@@ -104,7 +104,7 @@ export default function ThreeTierPricing() {
                 Most Popular
               </Text>
             </Box>
-            <Box  bgColor={'white'} py={4} px={12}>
+            <Box py={4} px={12}>
               <Text fontWeight="500" fontSize="2xl">
                 Growth
               </Text>
@@ -115,17 +115,17 @@ export default function ThreeTierPricing() {
                 <Text fontSize="5xl" fontWeight="900">
                   9.99
                 </Text>
-                <Text fontSize="3xl" color="gray.500">
+                <Text fontSize="3xl">
                   / month
                 </Text>
               </HStack>
-              <Button mt={4} bgColor={'whatsapp.600'} onClick={() => handleCheckout('price_1NUeWRJYg5O3ufDJsjAKXXJJ')}>Purchase</Button>
+              <Button mt={4} bgColor={'whatsapp.600'} color='white' onClick={() => handleCheckout('price_1NUeWRJYg5O3ufDJsjAKXXJJ')} _hover={{ bg: "whatsapp.700" }}>Purchase</Button>
             </Box>
           </Box>
         </PriceWrapper>
 
         <PriceWrapper>
-          <Box  bgColor={'white'} py={4} px={12}>
+          <Box py={4} px={12} bgColor={'gray.800'} color={'white'}>
             <Text fontWeight="500" fontSize="2xl">
               Premium
             </Text>
@@ -136,11 +136,11 @@ export default function ThreeTierPricing() {
               <Text fontSize="5xl" fontWeight="900">
                 29.99
               </Text>
-              <Text fontSize="3xl" color="gray.500">
+              <Text fontSize="3xl">
                 / month
               </Text>
             </HStack>
-            <Button mt={4} bgColor={'yellow.400'} onClick={() => handleCheckout('price_1NUeWRJYg5O3ufDJsjAKXXJJ')}>Purchase</Button>
+            <Button mt={4} bgColor={'yellow.400'} color='white' onClick={() => handleCheckout('price_1NUeWRJYg5O3ufDJsjAKXXJJ')} _hover={{ bg: "yellow.500" }}>Purchase</Button>
           </Box>
         </PriceWrapper>
       </Stack>

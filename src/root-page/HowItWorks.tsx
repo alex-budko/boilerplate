@@ -13,17 +13,17 @@ import {
     {
       title: 'Sign In With GitHub',
       description: 'To get started, sign in with your GitHub account. This allows us to generate and push code directly to your repositories.',
-      imageUrl: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+      imageUrl: 'https://media3.giphy.com/media/du3J3cXyzhj75IOgvA/200.webp?cid=ecf05e47u8cohq41l0xdrrt3mxs70th0x44rf71ogeecndt1&ep=v1_gifs_search&rid=200.webp&ct=g',
     },
     {
       title: 'Type a Thorough Prompt',
       description: 'Next, type in a thorough prompt that describes the code you want. The more specific you are, the better we can generate code that fits your needs.',
-      imageUrl: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+      imageUrl: 'https://media3.giphy.com/media/l2Je3ktsieOfOGa1G/100.webp?cid=ecf05e47h69i65buqrozaqqce9ly32gu3hnzfnfxs34zkotw&ep=v1_gifs_search&rid=100.webp&ct=g',
     },
     {
       title: 'Export the Code',
       description: 'Finally, click the button to export the code. You can choose to push it directly to your GitHub repository or download the files to your local machine.',
-      imageUrl: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+      imageUrl: 'https://media3.giphy.com/media/4EFt4UAegpqTy3nVce/200w.webp?cid=ecf05e47qok1dt7zhyrk8llnnr9xuq32goilwrs8d9391ll2&ep=v1_gifs_search&rid=200w.webp&ct=g',
     },
   ];
   
@@ -37,6 +37,7 @@ import {
               {cards.map((card, index) => (
                 <Center py={6} key={index}>
                   <Box
+                    h='70vh'
                     bg={bg}
                     boxShadow={'2xl'}
                     rounded={'md'}
@@ -48,8 +49,6 @@ import {
                       bg={'gray.100'}
                       mt={-6}
                       mx={-6}
-                      mb={6}
-                      pos={'relative'}
                     >
                       <img
                         src={card.imageUrl}
@@ -67,13 +66,14 @@ import {
                       >
                         Step {index + 1}
                       </Text>
-                      <Heading
+                      <Text
+                        fontWeight={'800'}
                         color={color}
                         fontSize={'2xl'}
                         fontFamily={'body'}
                       >
                         {card.title}
-                      </Heading>
+                      </Text>
                       <Text color={'gray.500'}>
                         {card.description}
                       </Text>
