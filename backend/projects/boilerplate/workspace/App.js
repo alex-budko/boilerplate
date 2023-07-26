@@ -1,16 +1,21 @@
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import BlogList from './BlogList';
-import BlogDetail from './BlogDetail';
+import Header from './Header';
+import PostList from './PostList';
+import CategoryList from './CategoryList';
+import TagList from './TagList';
 
 function App() {
   return (
-    <Router>
-      <Switch>
-        <Route exact path="/" component={BlogList} />
-        <Route path="/blog/:id" component={BlogDetail} />
-      </Switch>
-    </Router>
+    <div>
+      <Header />
+      <div className="container">
+        <CategoryList />
+        <div className="content">
+          <PostList />
+          <TagList />
+        </div>
+      </div>
+    </div>
   );
 }
 

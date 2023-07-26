@@ -25,7 +25,7 @@ export default function App() {
         <Route path="success" element={<Success />} />
         <Route path="fail" element={<Fail />} />
       </Routes>
-      <Footer />
+      {/* <Footer /> */}
     </BrowserRouter>
   );
 }

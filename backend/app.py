@@ -24,6 +24,7 @@ active_child = None
 @app.before_first_request
 def set_api_key():
     os.environ['OPENAI_API_KEY'] = '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'
+    os.environ['COLLECT_LEARNINGS_OPT_OUT']= True
 
 def run_command(command):
     process = subprocess.Popen(
@@ -60,6 +61,8 @@ def generate_code():
 
     output_buffer = ""
     buffer_count = 0
+    first_question_ended = False
+
     while active_child.isalive():
         try:
             active_child.expect('\n', timeout=None)
@@ -67,25 +70,32 @@ def generate_code():
 
             logging.debug('Output from child process: ' + line)
 
-            # If the line starts with a number followed by a period, increment the buffer count
-            if re.match(r'^\d+\.', line):
-                buffer_count += 1
-
             # Add the line to the buffer
             output_buffer += line + "\n"
 
-            # If the buffer count reaches 10 or the line is a question, emit the buffered output as a single message and clear the buffer
+            # If the line starts with a number followed by a period and a space, it's a sub-question
+            if re.match(r'^\d+\.', line):
+                buffer_count += 1
+
+            # If the line is the ending line of the first question, set the flag
+            if line == '(answer in text, or "c" to move on)':
+                first_question_ended = True
+
+            # If the buffer count reaches 10, the first question ended, or the line is another question,
+            # emit the buffered output as a single message and clear the buffer
             if buffer_count == 10 or \
+                first_question_ended or \
                 line.startswith('Did the generated code run at all?') or \
                 line.startswith('Did the generated code do everything you wanted?'):
                 logging.debug('Output Buffer: ' + output_buffer)
                 socketio.emit('question_prompt', {'output': output_buffer.strip()})
                 output_buffer = ""
                 buffer_count = 0
+                first_question_ended = False  # Reset the flag for the next first question
 
                 user_response_event.wait()  # Wait for the event to be set
                 user_response_event.clear()  # Reset the event for the next iteration
-                
+
                 active_child.sendline(user_response)  # Send the user's answer to the child process
         except pexpect.exceptions.EOF:
             break

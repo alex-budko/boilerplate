@@ -1,15 +1,8 @@
-curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-sudo apt-get install -y nodejs
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+nvm install node
 
-cd /path/to/codebase
 npm install
 
-npm run build
+node server.js
 
-cd /path/to/backend
 npm start
-
-cd /path/to/codebase
-npm start
-
-http://localhost:3000

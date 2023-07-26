@@ -22,6 +22,8 @@ import {
   FormControl,
   FormLabel,
   Input,
+  ModalFooter,
+  Text,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { frameworks } from "../data/frameworks";
@@ -30,11 +32,15 @@ import { getAuth, GithubAuthProvider, signInWithPopup } from "firebase/auth";
 import axios from "axios";
 import "firebase/auth";
 import { saveAs } from "file-saver";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 
 interface FileResult {
   filename: string;
   content: string;
+}
+
+interface QuestionPromptData {
+  output: string;
 }
 
 const Generate = () => {
@@ -49,7 +55,27 @@ const Generate = () => {
   const [showResults, setShowResults] = useState<boolean>(false);
   const [codeResults, setCodeResults] = useState<FileResult[]>([]);
   const [showUploadButton, setShowUploadButton] = useState<boolean>(false);
+  const [outputBuffer, setOutputBuffer] = useState<string>("");
   const toast = useToast();
+  const [socket, setSocket] = useState<Socket | null>(null);
+
+  useEffect(() => {
+    const newSocket = io("http://localhost:5000");
+
+    setSocket(newSocket);
+
+    newSocket.on("question_prompt", (data: QuestionPromptData) => {
+      console.log(data);
+      setOutputBuffer(data.output);
+      setUserResponse("");
+      onOpen();
+    });
+
+    return () => {
+      newSocket.disconnect();
+      return undefined;
+    };
+  }, []);
 
   const handleTextChange = (e: any) => {
     setText(e.target.value);
@@ -243,20 +269,12 @@ const Generate = () => {
     });
   };
 
-  const socket = io("http://localhost:5000");
-
-  socket.on("question_prompt", (data) => {
-    console.log(data);
-    setUserResponse("");
-    onOpen(); 
-  });
-  
-  useEffect(() => {
-    if (!isOpen && userResponse !== "") {
+  const handleModalSubmit = () => {
+    if (socket) {
       socket.emit("user_response", { response: userResponse });
     }
-  }, [isOpen, userResponse]);
-  
+    onClose();
+  };
 
   return (
     <Center
@@ -314,6 +332,7 @@ const Generate = () => {
             <ModalHeader>Input Required</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
+              <Text mb={4}>{outputBuffer}</Text>
               <FormControl>
                 <FormLabel>Please enter your response:</FormLabel>
                 <Input
@@ -322,6 +341,11 @@ const Generate = () => {
                 />
               </FormControl>
             </ModalBody>
+            <ModalFooter>
+              <Button colorScheme="blue" mr={3} onClick={handleModalSubmit}>
+                Submit
+              </Button>
+            </ModalFooter>
           </ModalContent>
         </Modal>
 
