@@ -1,22 +1,16 @@
 import { useEffect } from "react";
-import { Box, Center, VStack, Button, Heading } from "@chakra-ui/react";
+import { Box, Center, VStack, Heading } from "@chakra-ui/react";
 import { Canvas } from "@react-three/fiber";
 import { useInView } from "react-intersection-observer";
 import { useNavigate } from "react-router-dom";
 import SceneComponent from "../components/SceneComponent";
 import HowItWorks from "../root-page/HowItWorks";
 import FAQ from "../root-page/FAQ";
-import WhyUs from "../root-page/WhyUs";
 import MotionButtonComponent from "../components/MotionButtonComponent";
-import Reviews from "../root-page/Reviews";
 import Typewriter from "react-ts-typewriter";
 
 const HeroPage = () => {
   const navigate = useNavigate();
-
-  const [ref, inView] = useInView({
-    triggerOnce: false,
-  });
 
   const onClick = () => {
     navigate("login");
@@ -38,7 +32,7 @@ const HeroPage = () => {
       </Heading>
 
       <HowItWorks />
-      
+
       <Box h="100vh" w="97vw">
         <Canvas gl={{ antialias: false }}>
           <SceneComponent />
@@ -47,7 +41,7 @@ const HeroPage = () => {
 
       <FAQ />
 
-      <Box ref={ref}>
+      <Box>
         <Center>
           <MotionButtonComponent onClick={onClick} />
         </Center>

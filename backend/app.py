@@ -24,7 +24,7 @@ active_child = None
 @app.before_first_request
 def set_api_key():
     os.environ['OPENAI_API_KEY'] = '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'
-    os.environ['COLLECT_LEARNINGS_OPT_OUT']= True
+    os.environ['COLLECT_LEARNINGS_OPT_OUT']= 'true'
 
 def run_command(command):
     process = subprocess.Popen(
@@ -41,6 +41,7 @@ def generate_code():
 
     text = data.get('text')
     frameworks = data.get('frameworks')
+    project_name = data.get('projectName')
 
     if not text:
         return jsonify({"error": "No text provided"}), 400
@@ -49,7 +50,7 @@ def generate_code():
         frameworks = []
 
     try:
-        with open('projects/boilerplate/prompt', 'w') as f:
+        with open('projects/{project_name}/prompt', 'w') as f:
             f.write(
                 f"We have the following request for a program: '{text}' and we want to use these frameworks: {', '.join(frameworks)}")
     except FileNotFoundError:
@@ -57,7 +58,7 @@ def generate_code():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-    active_child = pexpect.spawn('gpt-engineer projects/boilerplate')
+    active_child = pexpect.spawn(f'gpt-engineer projects/{project_name}')
 
     output_buffer = ""
     buffer_count = 0
@@ -109,7 +110,7 @@ def generate_code():
     active_child.wait()
 
     file_data = []
-    for file in glob.glob('projects/boilerplate/workspace/*'):
+    for file in glob.glob(f'projects/{project_name}/workspace/*'):
         with open(file, 'r') as f:
             file_data.append({
                 'filename': os.path.basename(file),

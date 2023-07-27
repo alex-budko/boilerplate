@@ -1,4 +1,8 @@
 import { useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { getDoc, updateDoc, doc, increment } from "firebase/firestore";
+import { db } from "../firebase/firebase";
+import { auth } from "../firebase/firebase";
 import JSZip from "jszip";
 import {
   Box,
@@ -25,10 +29,9 @@ import {
   ModalFooter,
   Text,
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
 import { frameworks } from "../data/frameworks";
 import { animated, useSpring } from "react-spring";
-import { getAuth, GithubAuthProvider, signInWithPopup } from "firebase/auth";
+import { GithubAuthProvider, signInWithPopup } from "firebase/auth";
 import axios from "axios";
 import "firebase/auth";
 import { saveAs } from "file-saver";
@@ -58,6 +61,8 @@ const Generate = () => {
   const [outputBuffer, setOutputBuffer] = useState<string>("");
   const toast = useToast();
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [projectName, setProjectName] = useState<string>("");
+  const [user, load, error] = useAuthState(auth);
 
   useEffect(() => {
     const newSocket = io("http://localhost:5000");
@@ -94,41 +99,6 @@ const Generate = () => {
     }
   };
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    setShowResults(false);
-    setLoading(true);
-    setShowUploadButton(false);
-
-    const response = await fetch("http://localhost:5000/generate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        text: text,
-        frameworks: selectedFrameworks,
-      }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      console.log(data);
-      setCodeResults(data.codeResults[0].files);
-      setShowResults(true);
-      setShowUploadButton(true);
-    } else {
-      toast({
-        title: "An error occurred.",
-        description: "Please try again later.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    }
-    setLoading(false);
-  };
-
   const props = useSpring({
     from: { opacity: 0, transform: "translate3d(0,-40px,0)" },
     to: showResults
@@ -137,7 +107,69 @@ const Generate = () => {
     config: { mass: 1, tension: 280, friction: 60 },
   });
 
-  const auth = getAuth();
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+
+    if (user) {
+      const userRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(userRef);
+
+      if (docSnap.exists() && docSnap.data()?.tokens > 0) {
+        setShowResults(false);
+        setLoading(true);
+        setShowUploadButton(false);
+
+        const response = await fetch("http://localhost:5000/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            text: text,
+            frameworks: selectedFrameworks,
+            projectName: projectName, 
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data);
+          setCodeResults(data.codeResults[0].files);
+          setShowResults(true);
+          setShowUploadButton(true);
+
+          await updateDoc(userRef, {
+            tokens: increment(-1),
+          });
+        } else {
+          toast({
+            title: "An error occurred.",
+            description: "Please try again later.",
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+        }
+        setLoading(false);
+      } else {
+        toast({
+          title: "Not enough tokens.",
+          description: "You need at least 1 token to generate code.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } else {
+      toast({
+        title: "User not authenticated.",
+        description: "Please login to generate code.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
   const uploadFilesToRepo = async (
     token: string,
@@ -241,7 +273,7 @@ const Generate = () => {
         if (credential) {
           const token = credential.accessToken;
           if (token) {
-            createRepoAndUploadFiles(token, codeResults, "boilerplate-1");
+            createRepoAndUploadFiles(token, codeResults, projectName);
           } else {
             console.error("Access token is undefined");
           }
@@ -291,6 +323,14 @@ const Generate = () => {
             <Heading fontSize="2xl" mt="3" color="white">
               What do you want to create?
             </Heading>
+            <Input
+              width={"80vw"}
+              placeholder="Enter project name..."
+              size="lg"
+              color="purple.300"
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+            />
             <Textarea
               placeholder="I want to build a blog with users and posts in React..."
               size="lg"
@@ -301,7 +341,7 @@ const Generate = () => {
               width={"80vw"}
             />
 
-            <Wrap>
+            <Wrap width={"80vw"}>
               {frameworks.map((framework) => (
                 <Button
                   key={framework}

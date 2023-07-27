@@ -1,11 +1,9 @@
 import {
     Box,
     Center,
-    Heading,
     Text,
     Stack,
     useColorModeValue,
-    Container,
     HStack
   } from "@chakra-ui/react";
   
@@ -37,6 +35,7 @@ import {
               {cards.map((card, index) => (
                 <Center py={6} key={index}>
                   <Box
+                    w='30vw'
                     h='70vh'
                     bg={bg}
                     boxShadow={'2xl'}
