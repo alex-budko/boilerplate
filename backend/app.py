@@ -7,7 +7,9 @@ import pexpect
 from flask_socketio import SocketIO
 from threading import Event
 import logging
-import re
+import uuid
+from datetime import datetime
+import shutil
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -49,9 +51,13 @@ def generate_code():
     if not frameworks:
         frameworks = []
 
-    project_dir = f'projects/{project_name}'
+    # Append a timestamp or a uuid to the project name to make it unique
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    unique_id = str(uuid.uuid4())
+    project_dir = f'projects/{project_name}_{timestamp}_{unique_id}'
+
     os.makedirs(project_dir, exist_ok=True)
-    
+
     try:
         with open(f'{project_dir}/prompt', 'w') as f:
             f.write(
@@ -61,7 +67,10 @@ def generate_code():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-    active_child = pexpect.spawn(f'gpt-engineer projects/{project_name}')
+    original_dir = os.getcwd()
+    os.chdir(project_dir)
+    active_child = pexpect.spawn(f'gpt-engineer .')
+    os.chdir(original_dir)  # Change back to the original directory
 
     output_buffer = ""
     first_question_ended = False
@@ -107,12 +116,14 @@ def generate_code():
     active_child.wait()
 
     file_data = []
-    for file in glob.glob(f'projects/{project_name}/workspace/*'):
+    for file in glob.glob(f'{project_dir}/workspace/*'):
         with open(file, 'r') as f:
             file_data.append({
                 'filename': os.path.basename(file),
                 'content': f.read(),
             })
+
+    shutil.rmtree(project_dir)
 
     return jsonify({
         'codeResults': [

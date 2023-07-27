@@ -41,7 +41,7 @@ const handleCheckout = async (priceId: string) => {
 
   const {error} = await stripe.redirectToCheckout({
     lineItems: [{price: priceId, quantity: 1}],
-    mode: 'subscription',
+    mode: 'payment',
     successUrl: 'http://localhost:3000/success',
     cancelUrl: 'http://localhost:3000/fail',
   });

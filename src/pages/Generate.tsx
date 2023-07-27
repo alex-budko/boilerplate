@@ -127,7 +127,7 @@ const Generate = () => {
           body: JSON.stringify({
             text: text,
             frameworks: selectedFrameworks,
-            projectName: projectName,
+            projectName: projectName.toLowerCase(),
           }),
         });
 
@@ -252,7 +252,7 @@ const Generate = () => {
         }
       );
 
-      setTimeout(() => uploadFilesToRepo(token, files, repoName), 60000);
+      setTimeout(() => uploadFilesToRepo(token, files, repoName), 1000);
     } catch (error) {
       console.error("Error creating new repository", error);
     }

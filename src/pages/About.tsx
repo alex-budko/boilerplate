@@ -24,7 +24,7 @@ function About() {
         About Boilerplate.AI
       </Heading>
       <Text fontSize="1xl" color="white" textAlign="center">
-        Boilerplate.AI is the brainchild of Alex Budko, an innovative
+        Boilerplate.AI is the brainchild of Alex Budko, an
         undergraduate at the University of Pennsylvania.
       </Text>
 
