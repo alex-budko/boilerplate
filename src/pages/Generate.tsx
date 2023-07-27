@@ -127,7 +127,7 @@ const Generate = () => {
           body: JSON.stringify({
             text: text,
             frameworks: selectedFrameworks,
-            projectName: projectName, 
+            projectName: projectName,
           }),
         });
 
@@ -372,7 +372,11 @@ const Generate = () => {
             <ModalHeader>Input Required</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-              <Text mb={4}>{outputBuffer}</Text>
+              {outputBuffer.split("\n").map((line, index) => (
+                <Text key={index} mb={4}>
+                  {line}
+                </Text>
+              ))}
               <FormControl>
                 <FormLabel>Please enter your response:</FormLabel>
                 <Input

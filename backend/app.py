@@ -49,8 +49,11 @@ def generate_code():
     if not frameworks:
         frameworks = []
 
+    project_dir = f'projects/{project_name}'
+    os.makedirs(project_dir, exist_ok=True)
+    
     try:
-        with open('projects/{project_name}/prompt', 'w') as f:
+        with open(f'{project_dir}/prompt', 'w') as f:
             f.write(
                 f"We have the following request for a program: '{text}' and we want to use these frameworks: {', '.join(frameworks)}")
     except FileNotFoundError:
@@ -61,7 +64,6 @@ def generate_code():
     active_child = pexpect.spawn(f'gpt-engineer projects/{project_name}')
 
     output_buffer = ""
-    buffer_count = 0
     first_question_ended = False
 
     while active_child.isalive():
@@ -74,18 +76,13 @@ def generate_code():
             # Add the line to the buffer
             output_buffer += line + "\n"
 
-            # If the line starts with a number followed by a period and a space, it's a sub-question
-            if re.match(r'^\d+\.', line):
-                buffer_count += 1
-
             # If the line is the ending line of the first question, set the flag
             if line == '(answer in text, or "c" to move on)':
                 first_question_ended = True
 
             # If the buffer count reaches 10, the first question ended, or the line is another question,
             # emit the buffered output as a single message and clear the buffer
-            if buffer_count == 10 or \
-                first_question_ended or \
+            if first_question_ended or \
                 line.startswith('Did the generated code run at all?') or \
                 line.startswith('Did the generated code do everything you wanted?'):
                 logging.debug('Output Buffer: ' + output_buffer)
