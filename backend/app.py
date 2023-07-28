@@ -10,13 +10,23 @@ import logging
 import uuid
 from datetime import datetime
 import shutil
+import re
+from flask_limiter import Limiter
+
+app = Flask(__name__)
+
+from flask import request
+
+def get_remote_address():
+    return request.remote_addr
+
+limiter = Limiter(app, key_func=get_remote_address)
 
 logging.basicConfig(level=logging.DEBUG)
 
 user_response_event = Event() 
 user_response = None  
 
-app = Flask(__name__)
 cors = CORS(app, resources={r"/generate": {"origins": "*", "methods": ["POST"], "allow_headers": ["Content-Type"]}})
 app.config['DEBUG'] = True
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -26,7 +36,7 @@ active_child = None
 @app.before_first_request
 def set_api_key():
     os.environ['OPENAI_API_KEY'] = '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'
-    os.environ['COLLECT_LEARNINGS_OPT_OUT']= 'true'
+    os.environ['COLLECT_LEARNINGS_OPT_OUT']= 'True'
 
 def run_command(command):
     process = subprocess.Popen(
@@ -35,6 +45,7 @@ def run_command(command):
     return stdout.decode('utf-8'), stderr.decode('utf-8'), process.returncode
 
 @app.route('/generate', methods=['POST'])
+@limiter.limit("5/minute")
 def generate_code():
     global active_child, user_response_event, user_response
     data = request.get_json()
@@ -74,6 +85,7 @@ def generate_code():
 
     output_buffer = ""
     first_question_ended = False
+    collect_buffer = False
 
     while active_child.isalive():
         try:
@@ -82,23 +94,31 @@ def generate_code():
 
             logging.debug('Output from child process: ' + line)
 
-            # Add the line to the buffer
-            output_buffer += line + "\n"
+            # Add the line to the buffer if collect_buffer is True or the line contains a number
+            if collect_buffer and not line.startswith(('INFO:', 'Model', 'error_code=')) and re.search(r'\d', line):
+                output_buffer += line + "\n"
 
-            # If the line is the ending line of the first question, set the flag
-            if line == '(answer in text, or "c" to move on)':
+            # Check if the line is the beginning line of a question
+            if line.startswith('Areas that need clarification:') or line.startswith('Remaining questions:'):
+                output_buffer += line + "\n"
+                collect_buffer = True
+
+            # Check if the line is the ending line of a question
+            if line in ['(answer in text, or "c" to move on)', '(press enter to continue)']:
                 first_question_ended = True
 
-            # If the buffer count reaches 10, the first question ended, or the line is another question,
+            # If the first question ended or the line is another question,
             # emit the buffered output as a single message and clear the buffer
             if first_question_ended or \
                 line.startswith('Did the generated code run at all?') or \
-                line.startswith('Did the generated code do everything you wanted?'):
+                line.startswith('Did the generated code do everything you wanted?') or \
+                line.contains('gpt-engineer'):
+
                 logging.debug('Output Buffer: ' + output_buffer)
                 socketio.emit('question_prompt', {'output': output_buffer.strip()})
                 output_buffer = ""
-                buffer_count = 0
-                first_question_ended = False  # Reset the flag for the next first question
+                first_question_ended = False  # Reset the flag for the next question
+                collect_buffer = False  # Reset the flag for the next question
 
                 user_response_event.wait()  # Wait for the event to be set
                 user_response_event.clear()  # Reset the event for the next iteration

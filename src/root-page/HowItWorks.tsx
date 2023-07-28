@@ -4,7 +4,8 @@ import {
     Text,
     Stack,
     useColorModeValue,
-    HStack
+    Wrap,
+    WrapItem
   } from "@chakra-ui/react";
   
   const cards = [
@@ -31,7 +32,7 @@ import {
       
         return (
           <Center>
-            <HStack spacing={10} m='3'>
+            <Wrap spacing={10} m='3'>
               {cards.map((card, index) => (
                 <Center py={6} key={index}>
                   <Box
@@ -80,7 +81,7 @@ import {
                   </Box>
                 </Center>
               ))}
-            </HStack>
+            </Wrap>
           </Center>
         );
       }
