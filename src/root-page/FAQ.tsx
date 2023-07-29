@@ -27,7 +27,23 @@ const questions = [
     answer:
       "You can export the code by clicking on the 'Export' button. You can choose to directly push the code to a Github repository or download the files to your local machine.",
   },
+  {
+    question: "How are tokens used?",
+    answer:
+      "Each time you generate code, one token will be deducted from your account. Ensure you have enough tokens before generating code.",
+  },
+  {
+    question: "Can I get a refund for my tokens?",
+    answer:
+      "Yes, refunds can be made. Please contact us at our support email to request a refund.",
+  },
+  {
+    question: "What model is used to generate the code?",
+    answer:
+      "We use OpenAI's GPT-4.0 model to generate the code.",
+  },
 ];
+
 
 export default function FAQ() {
   const color = useColorModeValue("gray.300", "white");

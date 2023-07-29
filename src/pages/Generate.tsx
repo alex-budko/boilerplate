@@ -28,6 +28,11 @@ import {
   Input,
   ModalFooter,
   Text,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
 } from "@chakra-ui/react";
 import { frameworks } from "../data/frameworks";
 import { animated, useSpring } from "react-spring";
@@ -63,6 +68,7 @@ const Generate = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [projectName, setProjectName] = useState<string>("");
   const [user, load, error] = useAuthState(auth);
+  const [selectedFileContent, setSelectedFileContent] = useState("");
 
   useEffect(() => {
     const newSocket = io("http://localhost:5000");
@@ -74,6 +80,16 @@ const Generate = () => {
       setOutputBuffer(data.output);
       setUserResponse("");
       onOpen();
+    });
+
+    newSocket.on("terminal_output", (data: { step: number }) => {
+      toast({
+        title: "Step Count",
+        description: data.step,
+        status: "success",
+        duration: 200,
+        isClosable: true,
+      });
     });
 
     return () => {
@@ -318,7 +334,7 @@ const Generate = () => {
       bgGradient="linear(to-r, black, gray)"
     >
       <VStack spacing={10}>
-        {!loading && (
+        {!showResults && !loading && (
           <>
             <Heading fontSize="2xl" mt="3" color="white">
               What do you want to create?
@@ -406,35 +422,62 @@ const Generate = () => {
         )}
 
         {showResults && (
-          <animated.div style={props}>
-            {!uploadLoading && showUploadButton && (
-              <Box mt={5}>
-                <Button
-                  onClick={handleGitHubAction}
-                  mt={2}
-                  colorScheme="blue"
-                  _hover={{ bg: "blue.500" }}
-                >
-                  Upload to GitHub
-                </Button>
-                <Button
-                  onClick={handleDownload}
-                  mt={2}
-                  colorScheme="green"
-                  _hover={{ bg: "green.500" }}
-                  ml={2}
-                >
-                  Download Files
-                </Button>
-              </Box>
-            )}
-            {uploadLoading && (
-              <Alert status="info" mt={5}>
-                <AlertIcon />
-                Uploading files to GitHub...
-              </Alert>
-            )}
-          </animated.div>
+          <VStack>
+            <Accordion
+              allowToggle
+              w="100%"
+              mt='10'
+              colorScheme="white"
+              color="whatsapp.100"
+            >
+              {codeResults.map((result, index) => (
+                <AccordionItem key={index}>
+                  <AccordionButton>
+                    <Box flex="1" textAlign="left">
+                      {result.filename}
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                  <AccordionPanel>
+                    {result.content.split("\n").map((line, index) => (
+                      <Text key={index} fontSize="sm" color="white">
+                        {line}
+                      </Text>
+                    ))}
+                  </AccordionPanel>
+                </AccordionItem>
+              ))}
+            </Accordion>
+            <animated.div style={props}>
+              {!uploadLoading && showUploadButton && (
+                <Box mt={5}>
+                  <Button
+                    onClick={handleGitHubAction}
+                    mt={2}
+                    colorScheme="blue"
+                    _hover={{ bg: "blue.500" }}
+                  >
+                    Upload to GitHub
+                  </Button>
+                  <Button
+                    onClick={handleDownload}
+                    mt={2}
+                    colorScheme="green"
+                    _hover={{ bg: "green.500" }}
+                    ml={2}
+                  >
+                    Download Files
+                  </Button>
+                </Box>
+              )}
+              {uploadLoading && (
+                <Alert status="info" mt={5}>
+                  <AlertIcon />
+                  Uploading files to GitHub...
+                </Alert>
+              )}
+            </animated.div>
+          </VStack>
         )}
       </VStack>
     </Center>

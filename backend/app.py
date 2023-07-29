@@ -11,32 +11,23 @@ import uuid
 from datetime import datetime
 import shutil
 import re
-from flask_limiter import Limiter
-
-app = Flask(__name__)
-
-from flask import request
-
-def get_remote_address():
-    return request.remote_addr
-
-limiter = Limiter(app, key_func=get_remote_address)
 
 logging.basicConfig(level=logging.DEBUG)
 
 user_response_event = Event() 
 user_response = None  
 
+app = Flask(__name__)
 cors = CORS(app, resources={r"/generate": {"origins": "*", "methods": ["POST"], "allow_headers": ["Content-Type"]}})
 app.config['DEBUG'] = True
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 active_child = None
 
-@app.before_first_request
-def set_api_key():
+
+with app.app_context():
     os.environ['OPENAI_API_KEY'] = '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'
-    os.environ['COLLECT_LEARNINGS_OPT_OUT']= 'True'
+    os.environ['COLLECT_LEARNINGS_OPT_OUT']= 'true'
 
 def run_command(command):
     process = subprocess.Popen(
@@ -45,8 +36,8 @@ def run_command(command):
     return stdout.decode('utf-8'), stderr.decode('utf-8'), process.returncode
 
 @app.route('/generate', methods=['POST'])
-@limiter.limit("5/minute")
 def generate_code():
+    os.environ['OPENAI_API_KEY'] = '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'
     global active_child, user_response_event, user_response
     data = request.get_json()
     if data is None:
@@ -81,18 +72,22 @@ def generate_code():
     original_dir = os.getcwd()
     os.chdir(project_dir)
     active_child = pexpect.spawn(f'gpt-engineer .')
-    os.chdir(original_dir)  # Change back to the original directory
+    os.chdir(original_dir) 
 
     output_buffer = ""
     first_question_ended = False
     collect_buffer = False
+    step = 0
 
     while active_child.isalive():
         try:
             active_child.expect('\n', timeout=None)
             line = active_child.before.decode('utf-8').strip()
+            socketio.emit('terminal_output', {'step': step})
 
             logging.debug('Output from child process: ' + line)
+
+            step += 1
 
             # Add the line to the buffer if collect_buffer is True or the line contains a number
             if collect_buffer and not line.startswith(('INFO:', 'Model', 'error_code=')) and re.search(r'\d', line):
@@ -107,12 +102,16 @@ def generate_code():
             if line in ['(answer in text, or "c" to move on)', '(press enter to continue)']:
                 first_question_ended = True
 
+            # If the line contains 'gpt-engineer', send 'y' into the terminal
+            if 'gpt-engineer' in line:
+                active_child.sendline('y')
+
             # If the first question ended or the line is another question,
             # emit the buffered output as a single message and clear the buffer
-            if first_question_ended or \
+            elif first_question_ended or \
                 line.startswith('Did the generated code run at all?') or \
-                line.startswith('Did the generated code do everything you wanted?') or \
-                line.contains('gpt-engineer'):
+                line.startswith('Did the generated code do everything you wanted?'):
+                output_buffer += line + "\n"
 
                 logging.debug('Output Buffer: ' + output_buffer)
                 socketio.emit('question_prompt', {'output': output_buffer.strip()})

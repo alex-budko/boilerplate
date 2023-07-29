@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -11,11 +11,20 @@ import {
   Button,
   VStack,
   Avatar,
-  Heading
+  Heading,
+  Box,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
+  IconButton,
+  Center,
 } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
-import { auth } from "../firebase/firebase";
-import { User } from '../utils/types';
+import { auth, db } from "../firebase/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { User } from "../utils/types";
+import { FaRegUserCircle, FaCoins } from "react-icons/fa";
 
 interface ProfileComponentProps {
   user: User | null;
@@ -23,41 +32,95 @@ interface ProfileComponentProps {
   onClose: () => void;
 }
 
-const ProfileComponent: React.FC<ProfileComponentProps> = ({ user, isOpen, onClose }) => {
+const ProfileComponent: React.FC<ProfileComponentProps> = ({
+  user,
+  isOpen,
+  onClose,
+}) => {
+  const [userTokens, setUserTokens] = useState(0);
+
+  useEffect(() => {
+    const fetchUserTokens = async () => {
+      if (user && user.uid) {
+        const userRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(userRef);
+
+        if (docSnap.exists()) {
+          setUserTokens(docSnap.data().tokens);
+        }
+      }
+    };
+
+    fetchUserTokens();
+  }, [user]);
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
-      <ModalContent bgGradient="linear(to-r, purple, black)">
-        <ModalHeader color='white'>Profile</ModalHeader>
+      <ModalContent>
+        <ModalHeader>Profile</ModalHeader>
         <ModalCloseButton />
-        <ModalBody color='white'>
+        <ModalBody>
           {user ? (
-            <VStack spacing={4} align="center">
-              <Avatar name={user.displayName || ''} size="2xl"/>
-              <Heading size="lg" color="white" py={2}>{user.displayName}</Heading>
-              <Text>Email: {user.email}</Text>
-            </VStack>
+            <Box
+              p={5}
+              shadow="md"
+              borderWidth="1px"
+              borderRadius="lg"
+              bgColor="gray.800"
+              rounded="3xl"
+              boxShadow={"dark-lg"}
+            >
+              <VStack spacing={4} align="center">
+                <Avatar
+                  icon={<FaRegUserCircle />}
+                  name={user.displayName || ""}
+                  size="2xl"
+                />
+                <Heading size="lg" py={2}>
+                  {user.displayName}
+                </Heading>
+                <Text><i>{user.email}</i></Text>
+                <Stat>
+                  <StatLabel>Tokens</StatLabel>
+                  <StatNumber>{userTokens}</StatNumber>
+                  <StatHelpText>
+                    <IconButton
+                      aria-label="Tokens"
+                      icon={<FaCoins color="white" />}
+                      variant="ghost"
+                      isRound
+                    />
+                  </StatHelpText>
+                </Stat>
+              </VStack>
+            </Box>
           ) : (
             <Text>No user is signed in.</Text>
           )}
         </ModalBody>
-        <ModalFooter>
-          <Button colorScheme="green" mr={3} onClick={onClose}>
-            Close
-          </Button>
-          {user ? (
-            <Button colorScheme="red" onClick={() => {
-                onClose()
-                auth.signOut()
-            }}>
-              Logout
+        <Center>
+          <ModalFooter>
+            <Button colorScheme="green" mr={3} onClick={onClose}>
+              Close
             </Button>
-          ) : (
-            <Button as={Link} to="login" colorScheme="blue" onClick={onClose}>
-              Login
-            </Button>
-          )}
-        </ModalFooter>
+            {user ? (
+              <Button
+                colorScheme="red"
+                onClick={() => {
+                  onClose();
+                  auth.signOut();
+                }}
+              >
+                Logout
+              </Button>
+            ) : (
+              <Button as={Link} to="login" colorScheme="blue" onClick={onClose}>
+                Login
+              </Button>
+            )}
+          </ModalFooter>
+        </Center>
       </ModalContent>
     </Modal>
   );
