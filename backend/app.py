@@ -37,7 +37,6 @@ def run_command(command):
 
 @app.route('/generate', methods=['POST'])
 def generate_code():
-    os.environ['OPENAI_API_KEY'] = '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'
     global active_child, user_response_event, user_response
     data = request.get_json()
     if data is None:
@@ -99,18 +98,18 @@ def generate_code():
                 collect_buffer = True
 
             # Check if the line is the ending line of a question
-            if line in ['(answer in text, or "c" to move on)', '(press enter to continue)']:
+            if line in ['(answer in text, or "c" to move on)']:
                 first_question_ended = True
 
+            if 'Do you want to execute this code?' in line:
+                active_child.sendline('no')
+
             # If the line contains 'gpt-engineer', send 'y' into the terminal
-            if 'gpt-engineer' in line:
+            if 'gpt-engineer' in line or line.startswith('Did the generated code run at all?') or line.startswith('Did the generated code do everything you wanted?'):
                 active_child.sendline('y')
 
-            # If the first question ended or the line is another question,
-            # emit the buffered output as a single message and clear the buffer
-            elif first_question_ended or \
-                line.startswith('Did the generated code run at all?') or \
-                line.startswith('Did the generated code do everything you wanted?'):
+            # If the first question ended
+            elif first_question_ended:
                 output_buffer += line + "\n"
 
                 logging.debug('Output Buffer: ' + output_buffer)
