@@ -152,6 +152,13 @@ const Generate = () => {
           await updateDoc(userRef, {
             tokens: increment(-1),
           });
+          toast({
+            title: "Code Generated Successfully",
+            description: "1 Token Removed",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
         } else {
           toast({
             title: "An error occurred.",
@@ -361,7 +368,7 @@ const Generate = () => {
               onChange={(e) => setProjectName(e.target.value)}
             />
             <Textarea
-              placeholder="I want to build a blog with users and posts in React..."
+              placeholder="A blog with users and posts in React..."
               size="lg"
               resize="none"
               color="purple.300"
@@ -424,7 +431,7 @@ const Generate = () => {
 
         {loading && (
           <Center>
-            <VStack>
+            <VStack spacing='10'>
               <Spinner
                 thickness="4px"
                 speed="0.65s"
@@ -432,7 +439,7 @@ const Generate = () => {
                 color="blue.500"
                 size="xl"
               />
-              <Progress value={progress} size="md" height='32px' colorScheme="pink" />
+              <Progress value={progress} size="md" width='40vw' shadow={'dark-lg'} rounded='3xl' height='32px' colorScheme="blue" />
             </VStack>
           </Center>
         )}

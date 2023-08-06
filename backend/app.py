@@ -93,7 +93,7 @@ def generate_code():
                 output_buffer += line + "\n"
 
             # Check if the line is the beginning line of a question
-            if line.startswith('Areas that need clarification:') or line.startswith('Remaining questions:'):
+            if line.startswith('Areas that need clarification:') or line.startswith('remaining questions'):
                 output_buffer += line + "\n"
                 collect_buffer = True
 
@@ -101,14 +101,9 @@ def generate_code():
             if line in ['(answer in text, or "c" to move on)']:
                 first_question_ended = True
 
-            if 'Do you want to execute this code?' in line:
-                active_child.sendline('no')
-
-            # If the line contains 'gpt-engineer', send 'y' into the terminal
-            if 'gpt-engineer' in line or line.startswith('Did the generated code run at all?') or line.startswith('Did the generated code do everything you wanted?'):
+            if 'Did the generated code' in line or 'gpt-engineer' in line or 'Do you want to execute this code?' in line:
                 active_child.sendline('y')
 
-            # If the first question ended
             elif first_question_ended:
                 output_buffer += line + "\n"
 
@@ -127,19 +122,19 @@ def generate_code():
         except Exception as e:
             logging.error('Error in child process handling: ' + str(e))
 
-    # If there is still output in the buffer when the process ends, emit it
     if output_buffer:
         socketio.emit('question_prompt', {'output': output_buffer.strip()})
 
     active_child.wait()
 
     file_data = []
-    for file in glob.glob(f'{project_dir}/workspace/*'):
-        with open(file, 'r') as f:
-            file_data.append({
-                'filename': os.path.basename(file),
-                'content': f.read(),
-            })
+    for root, _, files in os.walk(f'{project_dir}/workspace'):
+        for file in files:
+            with open(os.path.join(root, file), 'r') as f:
+                file_data.append({
+                    'filename': os.path.relpath(os.path.join(root, file), f'{project_dir}/workspace'),
+                    'content': f.read(),
+                })
 
     shutil.rmtree(project_dir)
 
