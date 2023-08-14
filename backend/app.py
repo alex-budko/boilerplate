@@ -29,6 +29,9 @@ with app.app_context():
     os.environ['OPENAI_API_KEY'] = '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'
     os.environ['COLLECT_LEARNINGS_OPT_OUT']= 'true'
 
+def is_numbered_question(buffer: str) -> bool:
+    return bool(re.search(r'^\d\.\s', buffer, re.MULTILINE))
+
 def run_command(command):
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -108,7 +111,9 @@ def generate_code():
                 output_buffer += line + "\n"
 
                 logging.debug('Output Buffer: ' + output_buffer)
-                socketio.emit('question_prompt', {'output': output_buffer.strip()})
+                is_question = is_numbered_question(output_buffer)
+
+                socketio.emit('question_prompt', {'output': output_buffer.strip(), 'isNumberedQuestion': is_question})
                 output_buffer = ""
                 first_question_ended = False  # Reset the flag for the next question
                 collect_buffer = False  # Reset the flag for the next question
