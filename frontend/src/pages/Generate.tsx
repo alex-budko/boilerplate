@@ -251,7 +251,7 @@ const Generate = () => {
     repoName: string
   ) => {
     try {
-      const repo = await axios.post(
+      const _ = await axios.post(
         `https://api.github.com/user/repos`,
         {
           name: repoName,

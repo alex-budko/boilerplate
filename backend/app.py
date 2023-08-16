@@ -29,9 +29,6 @@ with app.app_context():
     os.environ['OPENAI_API_KEY'] = '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'
     os.environ['COLLECT_LEARNINGS_OPT_OUT']= 'true'
 
-def is_numbered_question(buffer: str) -> bool:
-    return bool(re.search(r'^\d\.\s', buffer, re.MULTILINE))
-
 def run_command(command):
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -78,8 +75,9 @@ def generate_code():
 
     output_buffer = ""
     first_question_ended = False
-    collect_buffer = False
+    collect_buffer = True
     step = 0
+    first_question = True
 
     while active_child.isalive():
         try:
@@ -93,7 +91,7 @@ def generate_code():
 
             # Add the line to the buffer if collect_buffer is True or the line contains a number
             if collect_buffer and not line.startswith(('INFO:', 'Model', 'error_code=')) and re.search(r'\d', line):
-                output_buffer += line + "\n"
+                output_buffer += line + "\n"               
 
             # Check if the line is the beginning line of a question
             if line.startswith('Areas that need clarification:') or line.startswith('remaining questions'):
@@ -104,24 +102,44 @@ def generate_code():
             if line in ['(answer in text, or "c" to move on)']:
                 first_question_ended = True
 
-            if 'Did the generated code' in line or 'gpt-engineer' in line or 'Do you want to execute this code?' in line:
+            if (not first_question) and ('Did the generated code' in line or 'gpt-engineer' in line or 'Do you want to execute this code?' in line):
+                print("SENDING Y")
                 active_child.sendline('y')
 
             elif first_question_ended:
-                output_buffer += line + "\n"
+                if first_question:
+                    answers = []
+                    logging.debug('Output Buffer: ' + output_buffer)
+                    questions_list = re.split(r'(\d\.\s)', output_buffer)  # Split based on numbered questions
+                    print(questions_list)
+                    for i in range(1, len(questions_list), 2):  # Iterate over the questions
+                        question = questions_list[i] + questions_list[i + 1]  # Combine question number and content
+                        if not "answer in text" in question:
+                            socketio.emit('question_prompt', {'output': question.strip()})
+                            user_response_event.wait()  # Wait for the event to be set
+                            user_response_event.clear()  # Reset the event for the next iteration
+                            answers.append(user_response)
+                    
+                    combined_answers = "\n".join([f"{idx+1}) {answer}" for idx, answer in enumerate(answers)])
+                    active_child.sendline(combined_answers)
 
-                logging.debug('Output Buffer: ' + output_buffer)
-                is_question = is_numbered_question(output_buffer)
+                    first_question = not first_question
+                    output_buffer = ""
+                    first_question_ended = False
+                    collect_buffer = False
+                else:
+                    output_buffer += line + "\n"
 
-                socketio.emit('question_prompt', {'output': output_buffer.strip(), 'isNumberedQuestion': is_question})
-                output_buffer = ""
-                first_question_ended = False  # Reset the flag for the next question
-                collect_buffer = False  # Reset the flag for the next question
+                    logging.debug('Output Buffer: ' + output_buffer)
+                    socketio.emit('question_prompt', {'output': output_buffer.strip()})
+                    output_buffer = ""
+                    first_question_ended = False  # Reset the flag for the next question
+                    collect_buffer = False  # Reset the flag for the next question
 
-                user_response_event.wait()  # Wait for the event to be set
-                user_response_event.clear()  # Reset the event for the next iteration
+                    user_response_event.wait()  # Wait for the event to be set
+                    user_response_event.clear()  # Reset the event for the next iteration
 
-                active_child.sendline(user_response)  # Send the user's answer to the child process
+                    active_child.sendline(user_response)  # Send the user's answer to the child process
         except pexpect.exceptions.EOF:
             break
         except Exception as e:
