@@ -127,19 +127,19 @@ def generate_code():
                     output_buffer = ""
                     first_question_ended = False
                     collect_buffer = False
-                else:
-                    output_buffer += line + "\n"
+                # else:
+                #     output_buffer += line + "\n"
 
-                    logging.debug('Output Buffer: ' + output_buffer)
-                    socketio.emit('question_prompt', {'output': output_buffer.strip()})
-                    output_buffer = ""
-                    first_question_ended = False  # Reset the flag for the next question
-                    collect_buffer = False  # Reset the flag for the next question
+                #     logging.debug('Output Buffer: ' + output_buffer)
+                #     socketio.emit('question_prompt', {'output': output_buffer.strip()})
+                #     output_buffer = ""
+                #     first_question_ended = False  # Reset the flag for the next question
+                #     collect_buffer = False  # Reset the flag for the next question
 
-                    user_response_event.wait()  # Wait for the event to be set
-                    user_response_event.clear()  # Reset the event for the next iteration
+                #     user_response_event.wait()  # Wait for the event to be set
+                #     user_response_event.clear()  # Reset the event for the next iteration
 
-                    active_child.sendline(user_response)  # Send the user's answer to the child process
+                #     active_child.sendline(user_response)  # Send the user's answer to the child process
         except pexpect.exceptions.EOF:
             break
         except Exception as e:
