@@ -1,6 +1,7 @@
 import { Button, VStack, Heading, Text, Box } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 
+// failing page
 const Fail = () => {
   return (
     <Box
