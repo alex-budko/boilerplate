@@ -21,7 +21,6 @@ export const addTokensOnPurchase = functions.firestore
         let currentTokens = doc.data()?.tokens || 0;
         currentTokens += tokensToAdd;
 
-        // Update the user's token count
         try {
             await userRef.update({ tokens: currentTokens });
         } catch (error) {
