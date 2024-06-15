@@ -11,6 +11,7 @@ import uuid
 from datetime import datetime
 import shutil
 import re
+import process
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -26,7 +27,7 @@ active_child = None
 
 
 with app.app_context():
-    os.environ['OPENAI_API_KEY'] = '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'
+    os.environ['OPENAI_API_KEY'] = process.env['API-KEY']
     os.environ['COLLECT_LEARNINGS_OPT_OUT']= 'true'
 
 def run_command(command):
@@ -110,14 +111,14 @@ def generate_code():
                 if first_question:
                     answers = []
                     logging.debug('Output Buffer: ' + output_buffer)
-                    questions_list = re.split(r'(\d\.\s)', output_buffer)  # Split based on numbered questions
+                    questions_list = re.split(r'(\d\.\s)', output_buffer)  # split based on numbered questions
                     print(questions_list)
-                    for i in range(1, len(questions_list), 2):  # Iterate over the questions
-                        question = questions_list[i] + questions_list[i + 1]  # Combine question number and content
+                    for i in range(1, len(questions_list), 2):  # iterate over the questions
+                        question = questions_list[i] + questions_list[i + 1]  # combine question number and content
                         if not "answer in text" in question:
                             socketio.emit('question_prompt', {'output': question.strip()})
-                            user_response_event.wait()  # Wait for the event to be set
-                            user_response_event.clear()  # Reset the event for the next iteration
+                            user_response_event.wait()  # wait for the event to be set
+                            user_response_event.clear()  # reset the event for the next iteration
                             answers.append(user_response)
                     
                     combined_answers = "\n".join([f"{idx+1}) {answer}" for idx, answer in enumerate(answers)])
@@ -127,19 +128,6 @@ def generate_code():
                     output_buffer = ""
                     first_question_ended = False
                     collect_buffer = False
-                # else:
-                #     output_buffer += line + "\n"
-
-                #     logging.debug('Output Buffer: ' + output_buffer)
-                #     socketio.emit('question_prompt', {'output': output_buffer.strip()})
-                #     output_buffer = ""
-                #     first_question_ended = False  # Reset the flag for the next question
-                #     collect_buffer = False  # Reset the flag for the next question
-
-                #     user_response_event.wait()  # Wait for the event to be set
-                #     user_response_event.clear()  # Reset the event for the next iteration
-
-                #     active_child.sendline(user_response)  # Send the user's answer to the child process
         except pexpect.exceptions.EOF:
             break
         except Exception as e:
